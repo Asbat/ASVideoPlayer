@@ -1,0 +1,6 @@
+framework module ASVideoPlayer {
+  umbrella header "ASVideoPlayer-umbrella.h"
+
+  export *
+  module * { export * }
+}
