@@ -7,8 +7,11 @@
 //
 
 #import "ASViewController.h"
+#import "ATVideoView.h"
 
 @interface ASViewController ()
+
+@property (nonatomic, strong) ATVideoView           *videoView;
 
 @end
 
@@ -18,6 +21,12 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    self.videoView = [ATVideoView create];
+    
+    [self.videoView setFrame:self.view.bounds];
+    
+    [self.view addSubview:self.videoView];
 }
 
 - (void)didReceiveMemoryWarning

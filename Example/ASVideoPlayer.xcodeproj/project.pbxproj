@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
-		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
 		6003F598195388D20070C39A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6003F596195388D20070C39A /* InfoPlist.strings */; };
 		6003F59A195388D20070C39A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F599195388D20070C39A /* main.m */; };
@@ -23,6 +22,10 @@
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		95A687C9C006E16583D90D3C /* Pods_ASVideoPlayer_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C27B5E57FF73374CF7905679 /* Pods_ASVideoPlayer_Example.framework */; };
 		AB2BD162511C8D02FFD4F567 /* Pods_ASVideoPlayer_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A026183CA743ED88EBCA5E56 /* Pods_ASVideoPlayer_Tests.framework */; };
+		D72F26CD1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72F26CC1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard */; };
+		D7FFF7591C5055800001E047 /* ATPlaybackView.m in Sources */ = {isa = PBXBuildFile; fileRef = D7FFF7551C5055800001E047 /* ATPlaybackView.m */; };
+		D7FFF75A1C5055800001E047 /* ATVideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = D7FFF7571C5055800001E047 /* ATVideoView.m */; };
+		D7FFF75B1C5055800001E047 /* ATVideoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D7FFF7581C5055800001E047 /* ATVideoView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +66,12 @@
 		A57485BF06D8B3BE40380DD5 /* Pods-ASVideoPlayer_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASVideoPlayer_Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ASVideoPlayer_Tests/Pods-ASVideoPlayer_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		BD9A66CA5C4EF06E266C7C52 /* Pods-ASVideoPlayer_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASVideoPlayer_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ASVideoPlayer_Example/Pods-ASVideoPlayer_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		C27B5E57FF73374CF7905679 /* Pods_ASVideoPlayer_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ASVideoPlayer_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D72F26CC1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ASLaunchScreen.storyboard; sourceTree = "<group>"; };
+		D7FFF7541C5055800001E047 /* ATPlaybackView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATPlaybackView.h; sourceTree = "<group>"; };
+		D7FFF7551C5055800001E047 /* ATPlaybackView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATPlaybackView.m; sourceTree = "<group>"; };
+		D7FFF7561C5055800001E047 /* ATVideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ATVideoView.h; sourceTree = "<group>"; };
+		D7FFF7571C5055800001E047 /* ATVideoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ATVideoView.m; sourceTree = "<group>"; };
+		D7FFF7581C5055800001E047 /* ATVideoView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ATVideoView.xib; sourceTree = "<group>"; };
 		DA61D603B496A6CD39631D7E /* ASVideoPlayer.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ASVideoPlayer.podspec; path = ../ASVideoPlayer.podspec; sourceTree = "<group>"; };
 		FCA57F4DD9041DF06B987EC6 /* Pods-ASVideoPlayer_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASVideoPlayer_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-ASVideoPlayer_Example/Pods-ASVideoPlayer_Example.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -72,7 +81,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
 				95A687C9C006E16583D90D3C /* Pods_ASVideoPlayer_Example.framework in Frameworks */,
@@ -130,6 +138,11 @@
 		6003F593195388D20070C39A /* Example for ASVideoPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				D7FFF7541C5055800001E047 /* ATPlaybackView.h */,
+				D7FFF7551C5055800001E047 /* ATPlaybackView.m */,
+				D7FFF7561C5055800001E047 /* ATVideoView.h */,
+				D7FFF7571C5055800001E047 /* ATVideoView.m */,
+				D7FFF7581C5055800001E047 /* ATVideoView.xib */,
 				6003F59C195388D20070C39A /* ASAppDelegate.h */,
 				6003F59D195388D20070C39A /* ASAppDelegate.m */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
@@ -137,6 +150,7 @@
 				6003F5A6195388D20070C39A /* ASViewController.m */,
 				6003F5A8195388D20070C39A /* Images.xcassets */,
 				6003F594195388D20070C39A /* Supporting Files */,
+				D72F26CC1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard */,
 			);
 			name = "Example for ASVideoPlayer";
 			path = ASVideoPlayer;
@@ -277,8 +291,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
+				D7FFF75B1C5055800001E047 /* ATVideoView.xib in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
+				D72F26CD1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,7 +407,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* ASAppDelegate.m in Sources */,
+				D7FFF75A1C5055800001E047 /* ATVideoView.m in Sources */,
 				6003F5A7195388D20070C39A /* ASViewController.m in Sources */,
+				D7FFF7591C5055800001E047 /* ATPlaybackView.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -516,6 +534,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ASVideoPlayer/ASVideoPlayer-Prefix.pch";
 				INFOPLIST_FILE = "ASVideoPlayer/ASVideoPlayer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -532,6 +551,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ASVideoPlayer/ASVideoPlayer-Prefix.pch";
 				INFOPLIST_FILE = "ASVideoPlayer/ASVideoPlayer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";

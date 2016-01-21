@@ -10,4 +10,5 @@ target 'ASVideoPlayer_Tests', :exclusive => true do
 
   pod 'Specta'
   pod 'Expecta'
+  pod 'SVProgressHUD'
 end

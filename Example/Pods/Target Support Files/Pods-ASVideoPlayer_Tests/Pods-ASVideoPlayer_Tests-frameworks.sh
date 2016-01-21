@@ -86,10 +86,12 @@ strip_invalid_archs() {
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-ASVideoPlayer_Tests/ASVideoPlayer.framework"
   install_framework "Pods-ASVideoPlayer_Tests/Expecta.framework"
+  install_framework "Pods-ASVideoPlayer_Tests/SVProgressHUD.framework"
   install_framework "Pods-ASVideoPlayer_Tests/Specta.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-ASVideoPlayer_Tests/ASVideoPlayer.framework"
   install_framework "Pods-ASVideoPlayer_Tests/Expecta.framework"
+  install_framework "Pods-ASVideoPlayer_Tests/SVProgressHUD.framework"
   install_framework "Pods-ASVideoPlayer_Tests/Specta.framework"
 fi
