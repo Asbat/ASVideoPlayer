@@ -83,6 +83,8 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 
 - (AVPlayerLayer *)outputViewForVideoPlayer:(ASBaseVideoPlayer *)videoPlayer;
 
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentItem:(id)currentItem;
+
 @end
 
 @interface ASBaseVideoPlayer : NSObject

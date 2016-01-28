@@ -11,6 +11,7 @@
 //[
 @class ASVideoPlayer;
 @class ASQueueVideoPlayer;
+@class ASQueuePlayerItem;
 //]
 
 @interface ASVideoView : UIView
@@ -55,6 +56,7 @@
 - (void)enableDoneButton;
 
 #pragma mark - Add Item To Playlist
-- (void)addNewPlaylistItem:(NSURL *)playlistItemURL;
+- (void)addNewPlaylistItem:(ASQueuePlayerItem *)item
+                completion:(void (^)())completion;
 
 @end

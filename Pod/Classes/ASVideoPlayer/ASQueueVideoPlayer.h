@@ -6,13 +6,30 @@
 //
 
 #import "ASBaseVideoPlayer.h"
+#import "ASQueuePlayerItem.h"
 
 @interface ASQueueVideoPlayer : ASBaseVideoPlayer
 
-@property (nonatomic, strong, readonly) NSMutableArray<AVURLAsset *>                *playlist;
-
 - (void)setup;
 
-- (void)addItemsToPlaylist:(NSArray<NSURL *> *)items;
+/**
+ *  Retrieves the current playlist.
+ *
+ *  @return Playlist
+ */
+- (NSArray<ASQueuePlayerItem *> *)playlist;
+
+/**
+ *  Adds items to playlist.
+ *
+ *  @param items ASQueuePlayerItems
+ */
+- (void)addItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
+                completion:(void (^)())completion;
+
+/**
+ *  Clears the current playlist.
+ */
+- (void)clearPlaylist;
 
 @end

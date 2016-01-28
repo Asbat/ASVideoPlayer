@@ -21,7 +21,8 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
 
 @interface ASQueueVideoPlayer ()
 
-@property (nonatomic, strong) NSMutableArray<AVURLAsset *>              *playlist;
+@property (nonatomic, strong) NSMutableArray<ASQueuePlayerItem *>       *playlistMutable;
+@property (nonatomic, strong) NSMutableDictionary                       *itemsDict;
 
 @end
 
@@ -37,7 +38,8 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     
     self.videoPlayer            = [AVQueuePlayer new];
     
-    self.playlist               = [NSMutableArray<AVURLAsset *> array];
+    self.playlistMutable        = [NSMutableArray<ASQueuePlayerItem *> array];
+    self.itemsDict              = [NSMutableDictionary new];
 
     [self initScrubberTimer];
     
@@ -117,87 +119,68 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     [self setState:ASVideoPlayerState_Suspended];
 }
 
-- (void)addItemsToPlaylist:(NSArray<NSURL *> *)items
+- (void)addItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
+                completion:(void (^)())completion
 {
-    for (NSURL *item in items)
-    {
-        [self addItemToPlaylist:item];
-    }
+    [self addItemsToPlaylist:items index:0 completion:completion];
 }
 
-- (void)addItemToPlaylist:(NSURL *)itemURL
+- (void)addItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
+                     index:(NSUInteger)index
+                completion:(void (^)())completion
 {
-    /*
-     Create an asset for inspection of a resource referenced by a given URL.
-     Load the values for the asset key "playable".
-     */
-    AVURLAsset *asset       = [AVURLAsset URLAssetWithURL:itemURL options:nil];
+    if (index >= items.count)
+    {
+        if (completion)
+        {
+            completion();
+        }
+        
+        return;
+    }
     
-    [self.playlist addObject:asset];
-    
-    NSArray *requestedKeys  = @[
-                                kASVP_PlayableKey
-                                ];
+    ASQueuePlayerItem *item = items[index];
     
     /* Tells the asset to load the values of any of the specified keys that are not already loaded. */
     __block __typeof(self) weakSelf = self;
-    [asset loadValuesAsynchronouslyForKeys:requestedKeys
-                         completionHandler:
-     ^{
-         if (weakSelf == nil)
-         {
-             return;
-         }
-         
-         __strong __typeof(weakSelf) sself = weakSelf;
-         dispatch_async( dispatch_get_main_queue(),
-                        ^{
-                            /* IMPORTANT: Must dispatch to main queue in order to operate on the AVQueuePlayer and AVPlayerItem. */
-                            if ([sself validateAsset:asset withKeys:requestedKeys])
-                            {
-                                [(AVQueuePlayer *)self.videoPlayer insertItem:[AVPlayerItem playerItemWithAsset:asset]
-                                                                    afterItem:nil];
-                                
-                                // Start playing.
-                                if (sself.isPlaying == NO)
-                                {
-                                    [sself play];
-                                }
-                            }
-                        });
-     }];
+    __block __typeof(item) weakItem = item;
+    [item prepareForPlaylistIndex:self.playlist.count
+                       completion:^(NSError *error)
+    {
+        dispatch_async( dispatch_get_main_queue(),
+                       ^{
+                           if (error)
+                           {
+                               [weakSelf assetFailedToPrepareForPlayback:error];
+                               
+                               return;
+                           }
+                           
+                           [self.playlistMutable addObject:item];
+                           self.itemsDict[item.asset.URL.absoluteString] = item;
+                           
+                           /* IMPORTANT: Must dispatch to main queue in order to operate on the AVQueuePlayer and AVPlayerItem. */
+                           [(AVQueuePlayer *)weakSelf.videoPlayer insertItem:[AVPlayerItem playerItemWithAsset:weakItem.asset]
+                                                                   afterItem:nil];
+                           
+                           // Start playing.
+                           if (weakSelf.isPlaying == NO)
+                           {
+                               [weakSelf play];
+                           }
+                           
+                           [weakSelf addItemsToPlaylist:items index:index + 1 completion:completion];
+                       });
+    }];
 }
 
-#pragma mark Validate Asset
+#pragma mark - Clear Playlist
 
-/*
- Invoked at the completion of the loading of the values for all keys on the asset that we require.
- Checks whether loading was successfull and whether the asset is playable.
- If so, sets up an AVPlayerItem and an AVPlayer to play the asset.
- */
-- (BOOL)validateAsset:(AVURLAsset *)asset withKeys:(NSArray *)requestedKeys
+- (void)clearPlaylist
 {
-    /* Make sure that the value of each key has loaded successfully. */
-    for (NSString *thisKey in requestedKeys)
-    {
-        NSError *error = nil;
-        AVKeyValueStatus keyStatus = [asset statusOfValueForKey:thisKey error:&error];
-        if (keyStatus == AVKeyValueStatusFailed)
-        {
-            [self assetFailedToPrepareForPlayback:error];
-            return NO;
-        }
-    }
-    
-    /* Use the AVAsset playable property to detect whether the asset can be played. */
-    if (!asset.playable)
-    {
-        [self assetFailedToPrepareForPlayback:nil];
-        
-        return NO;
-    }
-    
-    return YES;
+    [((AVQueuePlayer *)self.videoPlayer) removeAllItems];
+    [self.itemsDict removeAllObjects];
+    [self.playlistMutable removeAllObjects];
 }
 
 #pragma mark -
@@ -322,7 +305,11 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
      replacement will/did occur. */
     else if (context == ASVP_ContextCurrentItemObservation)
     {
-
+        if ([self.delegate respondsToSelector:@selector(videoPlayer:currentItem:)])
+        {
+            AVURLAsset *asset = (AVURLAsset *)self.videoPlayer.currentItem.asset;
+            [self.delegate videoPlayer:self currentItem:self.itemsDict[asset.URL.absoluteString]];
+        }
     }
     else if (context == ASVP_ContextCurrentItemDurationObservation)
     {
@@ -536,6 +523,11 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
 - (void)initialSeek:(double)seekTo
 {
     self.initialSeek = seekTo;
+}
+
+- (NSArray<ASQueuePlayerItem *> *)playlist
+{
+    return self.playlistMutable;
 }
 
 #pragma mark - Dealloc

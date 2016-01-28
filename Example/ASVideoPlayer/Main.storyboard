@@ -38,6 +38,9 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="854-yx-I8H">
                                         <rect key="frame" x="300" y="0.0" width="299.5" height="50"/>
                                         <state key="normal" title="Clear"/>
+                                        <connections>
+                                            <action selector="onClearPlaylistTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="WPc-Ca-6Mm"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -59,6 +62,9 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4Rf-vg-SWh" userLabel="View - playback">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="227"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="227" id="zGU-bY-KLN"/>
+                                </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NP1-PZ-J7D">
                                 <rect key="frame" x="0.0" y="227" width="600" height="324"/>
@@ -93,6 +99,11 @@
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="6rj-Qn-1AU"/>
+                                    </mask>
+                                </variation>
                                 <connections>
                                     <outlet property="dataSource" destination="whP-gf-Uak" id="DUC-nO-pNc"/>
                                     <outlet property="delegate" destination="whP-gf-Uak" id="dd7-78-LbR"/>
@@ -108,10 +119,16 @@
                             <constraint firstItem="4Rf-vg-SWh" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leadingMargin" constant="-20" id="Qw1-TJ-EZ0"/>
                             <constraint firstAttribute="trailingMargin" secondItem="NP1-PZ-J7D" secondAttribute="trailing" constant="-20" id="YbG-Sy-1bi"/>
                             <constraint firstItem="NP1-PZ-J7D" firstAttribute="top" secondItem="4Rf-vg-SWh" secondAttribute="bottom" id="jr4-Yv-Gpx"/>
+                            <constraint firstItem="NP1-PZ-J7D" firstAttribute="top" secondItem="4Rf-vg-SWh" secondAttribute="bottom" id="mTw-fs-2nA"/>
                             <constraint firstAttribute="trailingMargin" secondItem="ltm-lF-dgT" secondAttribute="trailing" constant="-20" id="pa4-hB-rRn"/>
                             <constraint firstItem="ltm-lF-dgT" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leadingMargin" constant="-20" id="pcy-bG-MYd"/>
                             <constraint firstAttribute="trailingMargin" secondItem="4Rf-vg-SWh" secondAttribute="trailing" constant="-20" id="zo4-L0-CHJ"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="jr4-Yv-Gpx"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="tbVwPlaylist" destination="NP1-PZ-J7D" id="Rtl-S2-pRD"/>

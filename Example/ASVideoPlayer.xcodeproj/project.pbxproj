@@ -23,8 +23,6 @@
 		95A687C9C006E16583D90D3C /* Pods_ASVideoPlayer_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C27B5E57FF73374CF7905679 /* Pods_ASVideoPlayer_Example.framework */; };
 		AB2BD162511C8D02FFD4F567 /* Pods_ASVideoPlayer_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A026183CA743ED88EBCA5E56 /* Pods_ASVideoPlayer_Tests.framework */; };
 		D72F26CD1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D72F26CC1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard */; };
-		D7FFF75A1C5055800001E047 /* ASVideoView.m in Sources */ = {isa = PBXBuildFile; fileRef = D7FFF7571C5055800001E047 /* ASVideoView.m */; };
-		D7FFF75B1C5055800001E047 /* ASVideoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = D7FFF7581C5055800001E047 /* ASVideoView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,9 +64,6 @@
 		BD9A66CA5C4EF06E266C7C52 /* Pods-ASVideoPlayer_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASVideoPlayer_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ASVideoPlayer_Example/Pods-ASVideoPlayer_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		C27B5E57FF73374CF7905679 /* Pods_ASVideoPlayer_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ASVideoPlayer_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D72F26CC1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = ASLaunchScreen.storyboard; sourceTree = "<group>"; };
-		D7FFF7561C5055800001E047 /* ASVideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASVideoView.h; sourceTree = "<group>"; };
-		D7FFF7571C5055800001E047 /* ASVideoView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASVideoView.m; sourceTree = "<group>"; };
-		D7FFF7581C5055800001E047 /* ASVideoView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ASVideoView.xib; sourceTree = "<group>"; };
 		DA61D603B496A6CD39631D7E /* ASVideoPlayer.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ASVideoPlayer.podspec; path = ../ASVideoPlayer.podspec; sourceTree = "<group>"; };
 		FCA57F4DD9041DF06B987EC6 /* Pods-ASVideoPlayer_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ASVideoPlayer_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-ASVideoPlayer_Example/Pods-ASVideoPlayer_Example.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -135,9 +130,6 @@
 		6003F593195388D20070C39A /* Example for ASVideoPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				D7FFF7561C5055800001E047 /* ASVideoView.h */,
-				D7FFF7571C5055800001E047 /* ASVideoView.m */,
-				D7FFF7581C5055800001E047 /* ASVideoView.xib */,
 				6003F59C195388D20070C39A /* ASAppDelegate.h */,
 				6003F59D195388D20070C39A /* ASAppDelegate.m */,
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
@@ -286,7 +278,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
-				D7FFF75B1C5055800001E047 /* ASVideoView.xib in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
 				D72F26CD1C4EA7B700FE0F9A /* ASLaunchScreen.storyboard in Resources */,
@@ -402,7 +393,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6003F59E195388D20070C39A /* ASAppDelegate.m in Sources */,
-				D7FFF75A1C5055800001E047 /* ASVideoView.m in Sources */,
 				6003F5A7195388D20070C39A /* ASViewController.m in Sources */,
 				6003F59A195388D20070C39A /* main.m in Sources */,
 			);

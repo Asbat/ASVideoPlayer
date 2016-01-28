@@ -27,7 +27,7 @@ Playing a video appears to be not so simple. ASVideoPlayer is built on AVPlayer 
 
   s.source_files = 'Pod/Classes/**/*'
   s.resource_bundles = {
-    'ASVideoPlayer' => ['Pod/Assets/*.png']
+    'ASVideoPlayer' => ['Pod/Assets/VideoPlayer/*']
   }
 
   # s.public_header_files = 'Pod/Classes/**/*.h'

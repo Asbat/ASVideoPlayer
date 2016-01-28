@@ -62,19 +62,33 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 @implementation ASVideoView
 
++ (NSBundle *)sharedBundle
+{
+    static NSBundle *_shared = nil;
+    static dispatch_once_t oncePredicate;
+    dispatch_once(&oncePredicate,
+                  ^{
+                      NSBundle *bundle  = [NSBundle bundleForClass:[self class]];
+                      _shared           = [NSBundle bundleWithURL:[bundle URLForResource:@"ASVideoPlayer"
+                                                                           withExtension:@"bundle"]];
+                  });
+    
+    return _shared;
+}
+
 + (instancetype)create
 {
-    ASVideoView *vwVideo        = [[NSBundle mainBundle] loadNibNamed:NSStringFromClass(self)
-                                                                owner:self
-                                                              options:nil][0];
+    ASVideoView *vwVideo                = [[ASVideoView sharedBundle] loadNibNamed:NSStringFromClass(self)
+                                                                             owner:self
+                                                                           options:nil][0];
     
     return vwVideo;
 }
 
 - (void)awakeFromNib
 {
-    self.player                 = [ASQueueVideoPlayer new];
-    self.player.delegate        = self;
+    self.player                         = [ASQueueVideoPlayer new];
+    self.player.delegate                = self;
     
     [self.player setup];
     
@@ -158,6 +172,11 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
         {
             [self disablePlayerButtons];
             [self disableScrubber];
+            [self setScrubberValue:0.0f];
+            [self updatePlayedTimeLabel:0.0f];
+            [self updateLeftTimeLabel:0.0f];
+            [self updateTitle:nil];
+            [self toggleControlls:YES];
             
             [self busy:NO];
             
@@ -169,6 +188,7 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             [self enableDoneButton];
             [self disableScrubber];
             [self disablePlayerButtons];
+            [self toggleControlls:YES];
 
             [self busy:NO];
             
@@ -217,14 +237,18 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 /* Show the pause button in the movie player controller. */
 -(void)showPauseButton
 {
-    [self.btnPlay setImage:[UIImage imageNamed:@"EBVideoIcon-Pause"]
+    [self.btnPlay setImage:[UIImage imageNamed:@"EBVideoIcon-Pause"
+                                      inBundle:[ASVideoView sharedBundle]
+                 compatibleWithTraitCollection:nil]
                   forState:UIControlStateNormal];
 }
 
 /* Show the play button in the movie player controller. */
 -(void)showPlayButton
 {
-    [self.btnPlay setImage:[UIImage imageNamed:@"EBVideoIcon-Play"]
+    [self.btnPlay setImage:[UIImage imageNamed:@"EBVideoIcon-Play"
+                                      inBundle:[ASVideoView sharedBundle]
+                 compatibleWithTraitCollection:nil]
                   forState:UIControlStateNormal];
 }
 
@@ -306,6 +330,43 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
     self.btnDoneArea.enabled = YES;
 }
 
+#pragma mark - Show/Hide Controls
+
+- (void)toggleControlls:(BOOL)show
+{
+    static BOOL isAnimating         = NO;
+    
+    if (isAnimating)
+    {
+        return;
+    }
+    
+    if (show == NO)
+    {
+        if (self.player.state == ASVideoPlayerState_Init ||
+            self.player.state == ASVideoPlayerState_Suspended ||
+            self.player.state == ASVideoPlayerState_Failed)
+        {
+            return;
+        }
+    }
+    
+    isAnimating                     = YES;
+    
+    CGFloat alpha                   = show? 1.0f : 0.0f;
+    
+    [UIView animateWithDuration:0.3f
+                     animations:^
+     {
+         self.vwTopBar.alpha         = alpha;
+         self.vwBottomBar.alpha      = alpha;
+     }
+                     completion:^(BOOL finished)
+     {
+         isAnimating                 = NO;
+     }];
+}
+
 #pragma mark - IBActions
 
 - (IBAction)play:(id)sender
@@ -351,27 +412,7 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (IBAction)onToggleControlBar:(id)sender
 {
-    static BOOL isAnimating         = NO;
-    
-    if (isAnimating)
-    {
-        return;
-    }
-    
-    isAnimating                     = YES;
-    
-    CGFloat alpha                   = self.vwTopBar.alpha == 1.0f ? 0.0f : 1.0f;
-
-    [UIView animateWithDuration:0.3f
-                     animations:^
-    {
-        self.vwTopBar.alpha         = alpha;
-        self.vwBottomBar.alpha      = alpha;
-    }
-                     completion:^(BOOL finished)
-    {
-        isAnimating                 = NO;
-    }];
+    [self toggleControlls:self.vwTopBar.alpha == 1.0f? NO : YES];
 }
 
 - (IBAction)onCloseButtonTapped:(id)sender
@@ -392,6 +433,12 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)updateTitle:(NSString *)title
 {
+    CATransition *animation = [CATransition animation];
+    animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    animation.type = kCATransitionFade;
+    animation.duration = 0.75;
+    [self.lblTitle.layer addAnimation:animation forKey:@"kCATransitionFade"];
+    
     self.lblTitle.text = title;
 }
 
@@ -515,13 +562,22 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
     [self updateLeftTimeLabel:duration - currentTime];
 }
 
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentItem:(id)currentItem
+{
+    if ([currentItem isKindOfClass:[ASQueuePlayerItem class]])
+    {
+        [self updateTitle:[currentItem title]];
+        [self toggleControlls:YES];
+    }
+}
+
 #pragma mark - Add New Item
 
-- (void)addNewPlaylistItem:(NSURL *)playlistItemURL
+- (void)addNewPlaylistItem:(ASQueuePlayerItem *)item completion:(void (^)())completion
 {
-    if (playlistItemURL)
+    if (item)
     {
-        [self.player addItemsToPlaylist:@[playlistItemURL]];
+        [self.player addItemsToPlaylist:@[item] completion:completion];
     }
 }
 

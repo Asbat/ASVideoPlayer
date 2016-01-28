@@ -60,23 +60,57 @@
 
 #pragma mark - IBActions
 
+- (IBAction)onClearPlaylistTapped:(id)sender
+{
+    [self.videoView.player clearPlaylist];
+    
+    [self.tbVwPlaylist reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
 - (IBAction)onAddNewPlaylistItemTapped:(id)sender
 {
     static NSUInteger step = 0;
     
+    ASQueuePlayerItem *item = nil;
     if (step % 2 == 0)
     {
-        [self.videoView addNewPlaylistItem:[NSURL URLWithString:@"http://api.dev.rlje.us/broker/?token=UT_UsEgnEUpf9p29smcPQxyXb6YCJoKPEnyy5WLeF1_mlK29QkFZHlh_ol_vze4c5RNkAb28GwK4CGj2TRaEojkZXks&asset_id=169&codec=HLS"]];
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"The Secret Adversary Part 3"
+                                                    url:@"http://api.dev.rlje.us/broker/?token=UT_exfg5H1PIQWScqXiiurgCsaTaOEToA-hyLaNzqvzGfnQ8FGJ3vZ3NAdmHQGAAly8LNxGL5IJdp1aQkMa9ALJTA==&asset_id=169&codec=HLS"
+                                               userInfo:@{}];
+    }
+    else if (step % 3 == 0)
+    {
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Miranda Part 2"
+                                                    url:@"http://api.dev.rlje.us/broker/?token=UT_exfg5H1PIQWScqXiiurgCsaTaOEToA-hyLaNzqvzGfnQ8FGJ3vZ3NAdmHQGAAly8LNxGL5IJdp1aQkMa9ALJTA==&asset_id=2397&codec=HLS"
+                                               userInfo:@{}];
     }
     else
     {
-        [self.videoView addNewPlaylistItem:[NSURL URLWithString:@"https://devimages.apple.com.edgekey.net/samplecode/avfoundationMedia/AVFoundationQueuePlayer_HLS2/master.m3u8"]];
-//        [self.videoView addNewPlaylistItem:[NSURL URLWithString:@"http://api.dev.rlje.us/broker/?token=GT_WqQlDqQZmbkm66kPhvAg9WW5Z9dJT0N9DegcL8p-o2noj9jICKePXGXUwJfsDKT4_X1NianzqM5pyA==&asset_id=76&codec=HLS"]];
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Colibri"
+                                                    url:@"https://devimages.apple.com.edgekey.net/samplecode/avfoundationMedia/AVFoundationQueuePlayer_HLS2/master.m3u8"
+                                               userInfo:@{}];
     }
     
-    step++;
+    __weak typeof (self) weakSelf = self;
+    [self.videoView addNewPlaylistItem:item
+                            completion:^
+    {
+        [weakSelf.tbVwPlaylist beginUpdates];
+        
+        NSIndexPath *newItemPath = [NSIndexPath indexPathForRow:weakSelf.videoView.player.playlist.count - 1
+                                                      inSection:0];
+        
+        [weakSelf.tbVwPlaylist insertRowsAtIndexPaths:@[newItemPath]
+                                     withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        [weakSelf.tbVwPlaylist endUpdates];
+        
+        [weakSelf.tbVwPlaylist scrollToRowAtIndexPath:newItemPath
+                                     atScrollPosition:UITableViewScrollPositionMiddle
+                                             animated:YES];
+    }];
     
-    [self.tbVwPlaylist reloadData];
+    step++;
 }
 
 #pragma mark - UITableView
@@ -92,9 +126,14 @@
     
     cell = (ASTestCell *)[tableView dequeueReusableCellWithIdentifier:@"ASTestCell" forIndexPath:indexPath];
     
-    cell.lblItem.text = [self.videoView.player.playlist[indexPath.row] URL].absoluteString;
+    cell.lblItem.text = [self.videoView.player.playlist[indexPath.row] title];
     
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
 }
 
 @end
