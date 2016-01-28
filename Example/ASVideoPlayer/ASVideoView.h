@@ -1,17 +1,22 @@
 //
-//  ATVideoView.h
-//  AcornTV
+//  ASVideoView.h
 //
 //  Created by Alexey Stoyanov on 12/3/15.
-//  Copyright © 2015 Qello. All rights reserved.
+//  Copyright © 2015 Alexey Stoyanov. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "ASVideoPlayer.h"
 
-@interface ATVideoView : UIView
+// Forward
+//[
+@class ASVideoPlayer;
+@class ASQueueVideoPlayer;
+//]
 
-@property (nonatomic, strong, readonly) ASVideoPlayer               *player;
+@interface ASVideoView : UIView
+
+//@property (nonatomic, strong, readonly) ASVideoPlayer               *player;
+@property (nonatomic, strong, readonly) ASQueueVideoPlayer          *player;
 @property (nonatomic, assign) CGFloat                               scrubberMinValue;
 @property (nonatomic, assign) CGFloat                               scrubberMaxValue;
 @property (nonatomic, assign) CGFloat                               scrubberValue;
@@ -44,9 +49,12 @@
 - (void)reset;
 
 #pragma mark - Activity
-- (void)showActivity:(BOOL)show;
+- (void)busy:(BOOL)show;
 
 #pragma mark - Enable Done Button
 - (void)enableDoneButton;
+
+#pragma mark - Add Item To Playlist
+- (void)addNewPlaylistItem:(NSURL *)playlistItemURL;
 
 @end

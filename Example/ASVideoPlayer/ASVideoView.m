@@ -1,25 +1,39 @@
 //
-//  ATVideoView.m
-//  AcornTV
+//  ASVideoView.m
 //
 //  Created by Alexey Stoyanov on 12/3/15.
-//  Copyright © 2015 Qello. All rights reserved.
+//  Copyright © 2015 Alexey Stoyanov. All rights reserved.
 //
 
 #import <AVFoundation/AVFoundation.h>
 //#import <SVProgressHUD/SVProgressHUD.h>
 
-#import "ATVideoView.h"
-#import "ATPlaybackView.h"
+#import "ASVideoView.h"
 #import "ASVideoEvent.h"
+//#import "ASVideoPlayer.h"
+#import "ASQueueVideoPlayer.h"
 
 static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextVideoStateObservation;
 
-@interface ATVideoView () <ASVideoPlayerDelegate>
+/**
+ *  ASPlaybackView
+ */
+@interface ASPlaybackView : UIView
+
+- (void)addPlayer:(AVPlayer *)player;
+- (AVPlayer *)player;
+- (void)setVideoFillMode:(NSString *)fillMode;
+
+@end
+
+/**
+ *  ASVideoView
+ */
+@interface ASVideoView () <ASVideoPlayerDelegate>
 
 // IBOutlets
 //[
-@property (nonatomic, strong) IBOutlet ATPlaybackView           *vwPlayback;
+@property (nonatomic, strong) IBOutlet ASPlaybackView           *vwPlayback;
 
 @property (nonatomic, strong) IBOutlet UIView                   *vwOverlayContainer;
 @property (nonatomic, strong) IBOutlet UIView                   *vwTopBar;
@@ -41,15 +55,16 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 @property (nonatomic, strong) IBOutlet UIButton                 *btnDoneArea;
 //]
 
-@property (nonatomic, strong) ASVideoPlayer                     *player;
+//@property (nonatomic, strong) ASVideoPlayer                     *player;
+@property (nonatomic, strong) ASQueueVideoPlayer                *player;
 
 @end
 
-@implementation ATVideoView
+@implementation ASVideoView
 
 + (instancetype)create
 {
-    ATVideoView *vwVideo        = [[NSBundle mainBundle] loadNibNamed:NSStringFromClass(self)
+    ASVideoView *vwVideo        = [[NSBundle mainBundle] loadNibNamed:NSStringFromClass(self)
                                                                 owner:self
                                                               options:nil][0];
     
@@ -58,14 +73,10 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)awakeFromNib
 {
-    self.player                 = [[ASVideoPlayer alloc] init];
+    self.player                 = [ASQueueVideoPlayer new];
     self.player.delegate        = self;
     
-    [self.player loadVideoURL:[NSURL URLWithString:@"http://api.dev.rlje.us/broker/?token=GT_x_z5nQxxUDV7qQbvHkGx8TKf6g67RD0YvXQ53OY4juY4sO8XQPhgP7vdRz4ATNHzkB3iAyuyk6vHcA==&asset_id=76&codec=HLS"]];
-    
-    [self syncPlayPauseButtons];
-    [self disableScrubber];
-    [self disablePlayerButtons];
+    [self.player setup];
     
     [self subscribeForVideoPlayerState];
 }
@@ -101,48 +112,30 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             [self disableScrubber];
             [self disablePlayerButtons];
             
+            [self busy:YES];
+            
             break;
         }
             
         case ASVideoPlayerState_Init:
         {
-            break;
-        }
-            
-        case ASVideoPlayerState_Preparing:
-        {
-            self.vwActivityIndicator.hidden = NO;
-            [self.vwActivityIndicator startAnimating];
-            
+            [self syncPlayPauseButtons];
             [self disableScrubber];
             [self disablePlayerButtons];
-            
-            break;
-        }
-            
-        case ASVideoPlayerState_ReadyToPlay:
-        {
-            [self syncPlayPauseButtons];
-            [self setScrubberValue:0.0];
             [self enableDoneButton];
-            
-            [self enableScrubber];
-            [self enablePlayerButtons];
-            
-            self.vwActivityIndicator.hidden = YES;
-            [self.vwActivityIndicator stopAnimating];
-            
-            break;
-        }
-            
-        case ASVideoPlayerState_LoadingContent:
-        {
+    
             break;
         }
             
         case ASVideoPlayerState_Playing:
         {
             [self syncPlayPauseButtons];
+            [self enableDoneButton];
+            
+            [self enableScrubber];
+            [self enablePlayerButtons];
+            
+            [self busy:NO];
             
             break;
         }
@@ -154,13 +147,19 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             break;
         }
             
+        case ASVideoPlayerState_Seeking:
+        {
+            [self busy:YES];
+            
+            break;
+        }
+            
         case ASVideoPlayerState_Suspended:
         {
             [self disablePlayerButtons];
             [self disableScrubber];
             
-            self.vwActivityIndicator.hidden = YES;
-            [self.vwActivityIndicator stopAnimating];
+            [self busy:NO];
             
             break;
         }
@@ -170,9 +169,21 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             [self enableDoneButton];
             [self disableScrubber];
             [self disablePlayerButtons];
+
+            [self busy:NO];
             
-            self.vwActivityIndicator.hidden = YES;
-            [self.vwActivityIndicator stopAnimating];
+            NSError *error = self.player.userInfo[@"error"];
+            
+            if (error)
+            {
+                /* Display the error. */
+                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
+                                                                    message:[error localizedFailureReason]
+                                                                   delegate:nil
+                                                          cancelButtonTitle:@"OK"
+                                                          otherButtonTitles:nil];
+                [alertView show];
+            }
             
             break;
         }
@@ -366,11 +377,15 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 - (IBAction)onCloseButtonTapped:(id)sender
 {
     [self.player reset];
+    [self unsubscribeForVideoPlayerState];
+    self.player = nil;
 
     if (self.closeHandler)
     {
         self.closeHandler();
     }
+    
+    [self removeFromSuperview];
 }
 
 #pragma mark - Title
@@ -385,13 +400,13 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 - (void)updatePlayedTimeLabel:(double)seconds
 {
     // Update time labels on each side of scrubber.
-    self.lblTimePlayed.text = [ATVideoView getFormattedTime:seconds];
+    self.lblTimePlayed.text = [ASVideoView getFormattedTime:seconds];
 }
 
 - (void)updateLeftTimeLabel:(double)seconds
 {
     // Update time labels on each side of scrubber.
-    self.lblTimeLeft.text = [@"-" stringByAppendingString:[ATVideoView getFormattedTime:seconds]];
+    self.lblTimeLeft.text = [@"-" stringByAppendingString:[ASVideoView getFormattedTime:seconds]];
 }
 
 #pragma mark - Get formatted time from seconds.
@@ -432,10 +447,18 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 }
 
 #pragma mark - Activity
-- (void)showActivity:(BOOL)show
+- (void)busy:(BOOL)show
 {
-    //TODO:
-//    [self busy:show];
+    if (show == NO)
+    {
+        self.vwActivityIndicator.hidden = YES;
+        [self.vwActivityIndicator stopAnimating];
+    }
+    else
+    {
+        self.vwActivityIndicator.hidden = NO;
+        [self.vwActivityIndicator startAnimating];
+    }
 }
 
 #pragma mark - Reset
@@ -490,6 +513,51 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
     [self updatePlayedTimeLabel:currentTime];
     [self updateLeftTimeLabel:duration - currentTime];
+}
+
+#pragma mark - Add New Item
+
+- (void)addNewPlaylistItem:(NSURL *)playlistItemURL
+{
+    if (playlistItemURL)
+    {
+        [self.player addItemsToPlaylist:@[playlistItemURL]];
+    }
+}
+
+@end
+
+#pragma mark - ASPlaybackView
+
+@implementation ASPlaybackView
+
++ (Class)layerClass
+{
+    return [AVPlayerLayer class];
+}
+
+- (void)addPlayer:(AVPlayer *)player
+{
+    [(AVPlayerLayer*)[self layer] setPlayer:player];
+}
+
+- (AVPlayer*)player
+{
+    return [(AVPlayerLayer*)[self layer] player];
+}
+
+- (AVPlayerLayer*)playerLayer
+{
+    return (AVPlayerLayer*)[self layer];
+}
+
+- (void)setVideoFillMode:(NSString *)fillMode
+{
+    // Specifies how the video will be displayed within the player's
+    // layer bounds. AVLayerVideoGravityResizeAspect is the default.
+    
+    AVPlayerLayer *playerLayer = (AVPlayerLayer*)[self layer];
+    playerLayer.videoGravity = fillMode;
 }
 
 @end

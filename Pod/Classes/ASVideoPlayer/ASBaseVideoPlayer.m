@@ -1,22 +1,23 @@
 //
-//  ASVideoPlayer.m
+//  ASBaseVideoPlayer.h
 //
 //  Created by Alexey Stoyanov on 11/30/15.
 //  Copyright © 2015 Alexey Stoyanov. All rights reserved.
 //
 
-#import <AVFoundation/AVFoundation.h>
+#import "ASBaseVideoPlayer.h"
+
 #import "ASVideoPlayer.h"
 #import "ASVideoEvent.h"
 
-static void *ASVP_ContextRateObservation                    = &ASVP_ContextRateObservation;
-static void *ASVP_ContextStatusObservation                  = &ASVP_ContextStatusObservation;
-static void *ASVP_ContextCurrentItemObservation             = &ASVP_ContextCurrentItemObservation;
+void *ASVP_ContextRateObservation                           = &ASVP_ContextRateObservation;
+void *ASVP_ContextStatusObservation                         = &ASVP_ContextStatusObservation;
+void *ASVP_ContextCurrentItemObservation                    = &ASVP_ContextCurrentItemObservation;
 
-static const NSString *kASVP_TracksKey                      = @"tracks";
-static const NSString *kASVP_PlayableKey                    = @"playable";
+NSString const *kASVP_TracksKey                             = @"tracks";
+NSString const *kASVP_PlayableKey                           = @"playable";
 
-@interface ASVideoPlayer ()
+@interface ASBaseVideoPlayer ()
 
 @property (nonatomic, strong) NSURL                         *sourceURL;
 
@@ -38,7 +39,7 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
 
 @end
 
-@implementation ASVideoPlayer
+@implementation ASBaseVideoPlayer
 
 - (instancetype)init
 {
@@ -48,6 +49,13 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     }
     
     return self;
+}
+
+#pragma mark - Create Video Player
+
+- (AVPlayer *)createVideoPlayer
+{
+    return [AVPlayer playerWithPlayerItem:self.playerItem];
 }
 
 #pragma mark - Send Events
@@ -312,7 +320,7 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     if (!self.videoPlayer)
     {
         /* Get a new AVPlayer initialized to play the specified player item. */
-        [self setVideoPlayer:[AVPlayer playerWithPlayerItem:self.playerItem]];
+        [self setVideoPlayer:[self createVideoPlayer]];
         
         /* Observe the AVPlayer "currentItem" property to find out when any
          AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did
@@ -371,7 +379,7 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     if (context == ASVP_ContextStatusObservation)
     {
         //TODO:
-//        [self.vwVideo syncPlayPauseButtons];
+        //        [self.vwVideo syncPlayPauseButtons];
         
         AVPlayerItemStatus status = [[change objectForKey:NSKeyValueChangeNewKey] integerValue];
         switch (status)
@@ -394,7 +402,7 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
                  its duration can be fetched from the item. */
                 
                 [self initScrubberTimer];
-            
+                
                 if (self.initialSeek != 0.0)
                 {
                     [self.videoPlayer seekToTime:CMTimeMakeWithSeconds(self.initialSeek, NSEC_PER_SEC)
@@ -485,7 +493,6 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     // After the movie has played to its end time, seek back to time zero to play it again.
     self.seekToZeroBeforePlay = YES;
     
-    
     // Send video logging ping when video has reached the end.
     [self sendEventEnd];
 }
@@ -497,13 +504,9 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     [self removePlayerTimeObserver];
     [self syncScrubber];
     
-    /* Display the error. */
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
-                                                        message:[error localizedFailureReason]
-                                                       delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-    [alertView show];
+    self.userInfo = @{@"error" : error};
+    
+    [self setState:ASVideoPlayerState_Failed];
 }
 
 #pragma mark - Duration
@@ -547,13 +550,13 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     }
     
     /* Update the scrubber during normal playback. */
-    __weak ASVideoPlayer *weakSelf = self;
+    __weak ASBaseVideoPlayer *weakSelf = self;
     self.timeObserver = [self.videoPlayer addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(interval, NSEC_PER_SEC)
                                                                        queue:NULL /* If you pass NULL, the main queue is used. */
                                                                   usingBlock:^(CMTime time)
-                     {
-                         [weakSelf syncScrubber];
-                     }];
+                         {
+                             [weakSelf syncScrubber];
+                         }];
 }
 
 /* Set the scrubber based on the player current time. */
@@ -563,7 +566,7 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     if (CMTIME_IS_INVALID(playerDuration))
     {
         //TODO:
-//        self.vwVideo.scrubberMinValue = 0.0;
+        //        self.vwVideo.scrubberMinValue = 0.0;
         return;
     }
     
@@ -574,7 +577,6 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
         
         if ([self.delegate respondsToSelector:@selector(videoPlayer:currentTime:timeLeft:duration:)])
         {
-            double time = CMTimeGetSeconds([self.videoPlayer currentTime]);
             [self.delegate videoPlayer:self currentTime:time timeLeft:duration - time duration:duration];
         }
         
@@ -676,7 +678,7 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
         self.seekToZeroBeforePlay = NO;
         [self.videoPlayer seekToTime:kCMTimeZero];
     }
-
+    
     [self.videoPlayer play];
 }
 
@@ -688,11 +690,22 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     }
     
     [self.videoPlayer pause];
-
+    
     // Send event "Pause".
     [self sendEventPause];
 }
 
+- (void)enableSubtitles:(BOOL)enable
+{
+    self.enableSubtitles = enable;
+}
+
+- (void)initialSeek:(double)seekTo
+{
+    self.initialSeek = seekTo;
+}
+
+#pragma mark - Reset video player
 - (void)reset
 {
     [self setState:ASVideoPlayerState_Suspended];
@@ -731,14 +744,11 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
     self.videoPlayer = nil;
 }
 
-- (void)enableSubtitles:(BOOL)enable
-{
-    self.enableSubtitles = enable;
-}
+#pragma mark - Dealloc
 
-- (void)initialSeek:(double)seekTo
+- (void)dealloc
 {
-    self.initialSeek = seekTo;
+    [self reset];
 }
 
 #pragma mark - Handle notifications
@@ -747,13 +757,6 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
 {
     // Add handler for "going to background" notification.
     [self sendEventEnd];
-}
-
-#pragma mark - Dealloc
-
-- (void)dealloc
-{
-    [self reset];
 }
 
 #pragma mark - Helpers
@@ -809,6 +812,13 @@ static const NSString *kASVP_PlayableKey                    = @"playable";
         case ASVideoPlayerState_Paused:
         {
             stateString = @"Paused";
+            
+            break;
+        }
+            
+        case ASVideoPlayerState_Seeking:
+        {
+            stateString = @"Seeking";
             
             break;
         }
