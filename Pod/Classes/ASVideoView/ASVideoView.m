@@ -6,12 +6,13 @@
 //
 
 #import <AVFoundation/AVFoundation.h>
-//#import <SVProgressHUD/SVProgressHUD.h>
+#import <AVKit/AVKit.h>
 
 #import "ASVideoView.h"
 #import "ASVideoEvent.h"
-//#import "ASVideoPlayer.h"
 #import "ASQueueVideoPlayer.h"
+
+const CGFloat kASVP_HideControlsDelay                           = 5.0f;
 
 static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextVideoStateObservation;
 
@@ -29,7 +30,10 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 /**
  *  ASVideoView
  */
-@interface ASVideoView () <ASVideoPlayerDelegate>
+@interface ASVideoView () <ASVideoPlayerDelegate, AVPictureInPictureControllerDelegate>
+{
+    dispatch_source_t                                           _hideControlsTimer;
+}
 
 // IBOutlets
 //[
@@ -53,10 +57,17 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 @property (nonatomic, strong) IBOutlet UIButton                 *btnContainer;
 @property (nonatomic, strong) IBOutlet UIButton                 *btnDone;
 @property (nonatomic, strong) IBOutlet UIButton                 *btnDoneArea;
+
+/**
+ *  Picture-In-Picture Button
+ */
+@property (nonatomic, strong) IBOutlet UIButton                 *btnPictureInPicture;
 //]
 
 //@property (nonatomic, strong) ASVideoPlayer                     *player;
 @property (nonatomic, strong) ASQueueVideoPlayer                *player;
+
+@property (nonatomic, strong) AVPictureInPictureController      *pipController;
 
 @end
 
@@ -93,6 +104,9 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
     [self.player setup];
     
     [self subscribeForVideoPlayerState];
+    
+    // Handle Picture-In-Picture
+    [self handlePictureInPicture];
 }
 
 - (void)dealloc
@@ -148,6 +162,8 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             
             [self enableScrubber];
             [self enablePlayerButtons];
+            
+            [self startHideControlsTimer];
             
             [self busy:NO];
             
@@ -347,11 +363,15 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             self.player.state == ASVideoPlayerState_Suspended ||
             self.player.state == ASVideoPlayerState_Failed)
         {
+            [self stopHideControlsTimer];
+            
             return;
         }
     }
     
     isAnimating                     = YES;
+    
+    [self startHideControlsTimer];
     
     CGFloat alpha                   = show? 1.0f : 0.0f;
     
@@ -417,7 +437,7 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (IBAction)onCloseButtonTapped:(id)sender
 {
-    [self.player reset];
+    [self stopHideControlsTimer];
     [self unsubscribeForVideoPlayerState];
     self.player = nil;
 
@@ -578,6 +598,86 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
     if (item)
     {
         [self.player addItemsToPlaylist:@[item] completion:completion];
+    }
+}
+
+#pragma mark - Timer Helpers
+
+- (void)startHideControlsTimer
+{
+    [self stopHideControlsTimer];
+    _hideControlsTimer = [ASVideoView startBackgroundTimer:^
+                          {
+                              if (self.player.state == ASVideoPlayerState_Playing)
+                              {
+                                  [self toggleControlls:NO];
+                              }
+                          }
+                                                     delay:kASVP_HideControlsDelay];
+}
+
+- (void)stopHideControlsTimer
+{
+    [ASVideoView stopPerformingRepeatBlockForTimer:_hideControlsTimer];
+}
+
++ (dispatch_source_t)startBackgroundTimer:(void (^)())block
+                                    delay:(uint64_t)delay
+{
+    dispatch_source_t timerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    dispatch_source_set_timer(timerSource, dispatch_time(DISPATCH_TIME_NOW, delay*NSEC_PER_SEC), DISPATCH_TIME_FOREVER, 0*NSEC_PER_SEC);
+    dispatch_source_set_event_handler(timerSource, ^
+                                      {
+                                          if (block)
+                                          {
+                                              block();
+                                          }
+                                          
+                                          dispatch_suspend(timerSource);
+                                      });
+    dispatch_resume(timerSource);
+    
+    return timerSource;
+}
+
++ (void)stopPerformingRepeatBlockForTimer:(dispatch_source_t)timer
+{
+    if (timer)
+    {
+        dispatch_suspend(timer);
+    }
+}
+
+#pragma mark - Picture-In-Picture
+
+- (void)handlePictureInPicture
+{
+    // Picture in Picture on iPad
+    if([AVPictureInPictureController isPictureInPictureSupported])
+    {
+        [self.btnPictureInPicture setImage:[AVPictureInPictureController pictureInPictureButtonStartImageCompatibleWithTraitCollection:nil]
+                                  forState:UIControlStateNormal];
+        
+        self.btnPictureInPicture.hidden = false;
+        
+        self.pipController              =  [[AVPictureInPictureController alloc] initWithPlayerLayer:(AVPlayerLayer *)self.vwPlayback.layer];
+        self.pipController.delegate     = self;
+    }
+    else
+    {
+        self.btnPictureInPicture.hidden = true;
+    }
+}
+
+- (IBAction)pictureInPictureButtonPressed:(id)sender
+{
+    if (self.pipController.pictureInPictureActive)
+    {
+        [self.pipController stopPictureInPicture];
+    }
+    else
+    {
+        [self.pipController startPictureInPicture];
     }
 }
 

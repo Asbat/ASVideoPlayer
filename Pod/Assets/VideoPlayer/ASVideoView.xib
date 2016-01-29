@@ -43,7 +43,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ukb-xf-Z3z">
                                     <rect key="frame" x="0.0" y="0.0" width="568" height="44"/>
                                     <subviews>
-                                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="byK-Th-de6">
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="byK-Th-de6">
                                             <rect key="frame" x="528" y="12" width="20" height="20"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <constraints>
@@ -91,6 +91,22 @@
                                             <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cfs-gU-uTz">
+                                            <rect key="frame" x="498" y="12" width="20" height="20"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="20" id="DSB-8f-Qg5"/>
+                                                <constraint firstAttribute="height" constant="20" id="owK-H5-OUB"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                            <state key="normal">
+                                                <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                            </state>
+                                            <connections>
+                                                <action selector="pictureInPictureButtonPressed:" destination="0FB-5U-imS" eventType="touchUpInside" id="LWV-Nl-xeJ"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                     <constraints>
@@ -101,8 +117,10 @@
                                         <constraint firstAttribute="bottom" secondItem="vST-47-XNs" secondAttribute="bottom" constant="7" id="UXt-Gp-exc"/>
                                         <constraint firstAttribute="bottom" secondItem="iqm-CL-7EO" secondAttribute="bottom" constant="12" id="UZF-Wf-s1x"/>
                                         <constraint firstAttribute="height" constant="44" id="cDD-gg-V9t"/>
+                                        <constraint firstItem="cfs-gU-uTz" firstAttribute="top" secondItem="ukb-xf-Z3z" secondAttribute="top" constant="12" id="hxm-X8-zg0"/>
                                         <constraint firstAttribute="centerX" secondItem="iqm-CL-7EO" secondAttribute="centerX" id="ij2-er-Zj7"/>
                                         <constraint firstItem="vST-47-XNs" firstAttribute="leading" secondItem="ukb-xf-Z3z" secondAttribute="leading" constant="16" id="ncv-uj-Ja4"/>
+                                        <constraint firstItem="byK-Th-de6" firstAttribute="leading" secondItem="cfs-gU-uTz" secondAttribute="trailing" constant="10" id="opi-RN-2yv"/>
                                         <constraint firstItem="iqm-CL-7EO" firstAttribute="top" secondItem="ukb-xf-Z3z" secondAttribute="top" constant="12" id="p4a-gE-Owe"/>
                                         <constraint firstItem="byK-Th-de6" firstAttribute="top" secondItem="ukb-xf-Z3z" secondAttribute="top" constant="12" id="yZg-3l-dOh"/>
                                         <constraint firstItem="vbV-at-Vd0" firstAttribute="top" secondItem="ukb-xf-Z3z" secondAttribute="top" id="z5m-ka-iYN"/>
@@ -263,6 +281,7 @@
                 <outlet property="btnDone" destination="vST-47-XNs" id="JEl-ty-inP"/>
                 <outlet property="btnDoneArea" destination="vbV-at-Vd0" id="YYF-Yo-odw"/>
                 <outlet property="btnFullscreen" destination="byK-Th-de6" id="REI-vd-YSO"/>
+                <outlet property="btnPictureInPicture" destination="cfs-gU-uTz" id="lzr-8A-8Hm"/>
                 <outlet property="btnPlay" destination="zbc-N2-kpt" id="oYC-t4-jJ9"/>
                 <outlet property="btnVolume" destination="acT-Av-81M" id="ZFG-Gp-mVJ"/>
                 <outlet property="lblTimeLeft" destination="brR-fP-VOb" id="wj6-cF-Luq"/>

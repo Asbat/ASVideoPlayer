@@ -74,14 +74,14 @@
     ASQueuePlayerItem *item = nil;
     if (step % 2 == 0)
     {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"The Secret Adversary Part 3"
-                                                    url:@"http://api.dev.rlje.us/broker/?token=UT_exfg5H1PIQWScqXiiurgCsaTaOEToA-hyLaNzqvzGfnQ8FGJ3vZ3NAdmHQGAAly8LNxGL5IJdp1aQkMa9ALJTA==&asset_id=169&codec=HLS"
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Mother Instinct - Gazoon"
+                                                    url:@"https://api.qkids.com/broker/?token=PT_NLM9CMF_q6VyDHbdvZpGdETCi2i_Ph3ORotsGmLONKbpSpIEz4-2rQzb-MYXIoVE4mddNpuEWNDap7Km-WSZHGzb&asset_id=2691&codec=HLS"
                                                userInfo:@{}];
     }
     else if (step % 3 == 0)
     {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Miranda Part 2"
-                                                    url:@"http://api.dev.rlje.us/broker/?token=UT_exfg5H1PIQWScqXiiurgCsaTaOEToA-hyLaNzqvzGfnQ8FGJ3vZ3NAdmHQGAAly8LNxGL5IJdp1aQkMa9ALJTA==&asset_id=2397&codec=HLS"
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Levers - Hippothesis"
+                                                    url:@"https://api.qkids.com/broker/?token=PT_NLM9CMF_q6VyDHbdvZpGdETCi2i_Ph3ORotsGmLONKbpSpIEz4-2rQzb-MYXIoVE4mddNpuEWNDap7Km-WSZHGzb&asset_id=2669&codec=HLS"
                                                userInfo:@{}];
     }
     else

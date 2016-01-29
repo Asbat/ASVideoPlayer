@@ -530,13 +530,6 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     return self.playlistMutable;
 }
 
-#pragma mark - Dealloc
-
-- (void)dealloc
-{
-    [self reset];
-}
-
 #pragma mark - Handle notifications
 
 - (void)appWillResignActive:(NSNotification *)notification
