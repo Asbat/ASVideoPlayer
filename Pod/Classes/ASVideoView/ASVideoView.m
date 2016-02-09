@@ -104,9 +104,6 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
     [self.player setup];
     
     [self subscribeForVideoPlayerState];
-    
-    // Handle Picture-In-Picture
-    [self handlePictureInPicture];
 }
 
 - (void)dealloc
@@ -568,6 +565,8 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (AVPlayerLayer *)outputViewForVideoPlayer:(ASVideoPlayer *)videoPlayer
 {
+    // Handle Picture-In-Picture
+    [self handlePictureInPicture];
     return (AVPlayerLayer *)self.vwPlayback.layer;
 }
 
@@ -586,18 +585,8 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 {
     if ([currentItem isKindOfClass:[ASQueuePlayerItem class]])
     {
-        [self updateTitle:[currentItem title]];
+        [self updateTitle:[NSString stringWithFormat:@"%d: %@", (int)[currentItem playlistIndex] + 1, [currentItem title]]];
         [self toggleControlls:YES];
-    }
-}
-
-#pragma mark - Add New Item
-
-- (void)addNewPlaylistItem:(ASQueuePlayerItem *)item completion:(void (^)())completion
-{
-    if (item)
-    {
-        [self.player addItemsToPlaylist:@[item] completion:completion];
     }
 }
 
@@ -652,6 +641,11 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)handlePictureInPicture
 {
+    if (self.pipController)
+    {
+        return;
+    }
+    
     // Picture in Picture on iPad
     if([AVPictureInPictureController isPictureInPictureSupported])
     {

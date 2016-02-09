@@ -55,8 +55,4 @@
 #pragma mark - Enable Done Button
 - (void)enableDoneButton;
 
-#pragma mark - Add Item To Playlist
-- (void)addNewPlaylistItem:(ASQueuePlayerItem *)item
-                completion:(void (^)())completion;
-
 @end

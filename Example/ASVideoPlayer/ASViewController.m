@@ -10,11 +10,13 @@
 #import "ASVideoView.h"
 #import "ASQueueVideoPlayer.h"
 
+static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextCurrentPlayerItemObservation;
+
 #pragma mark - Test Cell
 
 @interface ASTestCell : UITableViewCell
 
-@property (nonatomic, weak) IBOutlet UILabel            *lblItem;
+@property (nonatomic, weak) IBOutlet UILabel                    *lblItem;
 
 @end
 
@@ -22,13 +24,13 @@
 
 // IBOutlets
 //[
-@property (nonatomic, weak) IBOutlet UIView         *vwToolbarContainer;
-@property (nonatomic, weak) IBOutlet UIView         *vwPlayback;
+@property (nonatomic, weak) IBOutlet UIView                     *vwToolbarContainer;
+@property (nonatomic, weak) IBOutlet UIView                     *vwPlayback;
 
-@property (nonatomic, weak) IBOutlet UITableView    *tbVwPlaylist;
+@property (nonatomic, weak) IBOutlet UITableView                *tbVwPlaylist;
 //]
 
-@property (nonatomic, strong) ASVideoView           *videoView;
+@property (nonatomic, strong) ASVideoView                       *videoView;
 
 @end
 
@@ -43,6 +45,11 @@
     
     [self.videoView setFrame:self.vwPlayback.bounds];
     [self.vwPlayback addSubview:self.videoView];
+    
+    [self addObserver:self
+           forKeyPath:@"videoView.player.currentItem"
+              options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+              context:ASVC_ContextCurrentPlayerItemObservation];
 }
 
 - (void)didReceiveMemoryWarning
@@ -72,45 +79,70 @@
     static NSUInteger step = 0;
     
     ASQueuePlayerItem *item = nil;
-    if (step % 2 == 0)
+    NSMutableArray *items = [NSMutableArray array];
+    NSMutableArray *paths = [NSMutableArray array];
+//    if (step % 2 == 0)
     {
         item = [[ASQueuePlayerItem alloc] initWithTitle:@"Mother Instinct - Gazoon"
-                                                    url:@"https://api.qkids.com/broker/?token=PT_NLM9CMF_q6VyDHbdvZpGdETCi2i_Ph3ORotsGmLONKbpSpIEz4-2rQzb-MYXIoVE4mddNpuEWNDap7Km-WSZHGzb&asset_id=2691&codec=HLS"
+                                                    url:@"https://api.rlje.us/broker/?token=GT_orHiPSoTgrTKhBrTZ_ENBS-ykO9fIwIEAihXGxJDDFAZfP79O97jj2IADIp5tXTPZqD7jxbNOhnIfQ==&asset_id=645&codec=HLS"
                                                userInfo:@{}];
+        
+        [items addObject:item];
+        
+        [paths addObject:[NSIndexPath indexPathForRow:self.videoView.player.playlist.count
+                                           inSection:0]];
     }
-    else if (step % 3 == 0)
+//    else if (step % 3 == 0)
     {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Levers - Hippothesis"
-                                                    url:@"https://api.qkids.com/broker/?token=PT_NLM9CMF_q6VyDHbdvZpGdETCi2i_Ph3ORotsGmLONKbpSpIEz4-2rQzb-MYXIoVE4mddNpuEWNDap7Km-WSZHGzb&asset_id=2669&codec=HLS"
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Mystery"
+                                                    url:@"https://api.rlje.us/broker/?token=GT_orHiPSoTgrTKhBrTZ_ENBS-ykO9fIwIEAihXGxJDDFAZfP79O97jj2IADIp5tXTPZqD7jxbNOhnIfQ==&asset_id=5925&codec=HLS"
                                                userInfo:@{}];
+        
+        [items addObject:item];
+        
+        [paths addObject:[NSIndexPath indexPathForRow:[paths.firstObject row] + 1
+                                            inSection:0]];
     }
-    else
+//    else
     {
         item = [[ASQueuePlayerItem alloc] initWithTitle:@"Colibri"
                                                     url:@"https://devimages.apple.com.edgekey.net/samplecode/avfoundationMedia/AVFoundationQueuePlayer_HLS2/master.m3u8"
                                                userInfo:@{}];
+        
+        [items addObject:item];
+        
+        [paths addObject:[NSIndexPath indexPathForRow:[paths.firstObject row] + 2
+                                            inSection:0]];
     }
     
     __weak typeof (self) weakSelf = self;
-    [self.videoView addNewPlaylistItem:item
-                            completion:^
+    
+    [self.videoView.player addItemsToPlaylist:items
+                                   completion:^
     {
         [weakSelf.tbVwPlaylist beginUpdates];
         
-        NSIndexPath *newItemPath = [NSIndexPath indexPathForRow:weakSelf.videoView.player.playlist.count - 1
-                                                      inSection:0];
-        
-        [weakSelf.tbVwPlaylist insertRowsAtIndexPaths:@[newItemPath]
+        [weakSelf.tbVwPlaylist insertRowsAtIndexPaths:paths
                                      withRowAnimation:UITableViewRowAnimationAutomatic];
         
         [weakSelf.tbVwPlaylist endUpdates];
         
-        [weakSelf.tbVwPlaylist scrollToRowAtIndexPath:newItemPath
+        [weakSelf.tbVwPlaylist scrollToRowAtIndexPath:paths.lastObject
                                      atScrollPosition:UITableViewScrollPositionMiddle
                                              animated:YES];
     }];
     
     step++;
+}
+
+- (IBAction)onPrevItemButtonTapped:(id)sender
+{
+    [self.videoView.player prevItem];
+}
+
+- (IBAction)onNextItemButtonTapped:(id)sender
+{
+    [self.videoView.player nextItem];
 }
 
 #pragma mark - UITableView
@@ -133,7 +165,35 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
+    [self.videoView.player playItemAtIndex:indexPath.row];
+}
+
+
+#pragma mark - KVO
+- (void)observeValueForKeyPath:(NSString*)path
+                      ofObject:(id)object
+                        change:(NSDictionary*)change
+                       context:(void*)context
+{
+    if (context == ASVC_ContextCurrentPlayerItemObservation)
+    {
+        if (self.videoView.player.currentItem)
+        {
+            if ([self.tbVwPlaylist numberOfRowsInSection:0] > self.videoView.player.currentItem.playlistIndex)
+            {
+                [self.tbVwPlaylist selectRowAtIndexPath:[NSIndexPath indexPathForRow:self.videoView.player.currentItem.playlistIndex inSection:0]
+                                               animated:YES
+                                         scrollPosition:UITableViewScrollPositionMiddle];
+            }
+        }
+    }
+    else
+    {
+        [super observeValueForKeyPath:path
+                             ofObject:object
+                               change:change
+                              context:context];
+    }
 }
 
 @end

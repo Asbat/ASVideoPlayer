@@ -25,7 +25,7 @@
 @property (nonatomic, strong, readonly) AVURLAsset      *asset;
 
 @property (nonatomic, assign, readonly) BOOL            isPrepared;
-@property (nonatomic, assign, readonly) BOOL            playlistIndex;
+@property (nonatomic, assign, readonly) NSUInteger      playlistIndex;
 
 - (instancetype)initWithTitle:(NSString *)title
                           url:(NSString *)url

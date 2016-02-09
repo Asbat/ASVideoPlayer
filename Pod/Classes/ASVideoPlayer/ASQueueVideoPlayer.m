@@ -24,6 +24,8 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
 @property (nonatomic, strong) NSMutableArray<ASQueuePlayerItem *>       *playlistMutable;
 @property (nonatomic, strong) NSMutableDictionary                       *itemsDict;
 
+@property (nonatomic, strong) ASQueuePlayerItem                         *currentItem;
+
 @end
 
 @implementation ASQueueVideoPlayer
@@ -308,7 +310,11 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
         if ([self.delegate respondsToSelector:@selector(videoPlayer:currentItem:)])
         {
             AVURLAsset *asset = (AVURLAsset *)self.videoPlayer.currentItem.asset;
-            [self.delegate videoPlayer:self currentItem:self.itemsDict[asset.URL.absoluteString]];
+            
+            ASQueuePlayerItem *currentItem = self.itemsDict[asset.URL.absoluteString];
+            [self.delegate videoPlayer:self currentItem:currentItem];
+            
+            [self setCurrentItem:currentItem];
         }
     }
     else if (context == ASVP_ContextCurrentItemDurationObservation)
@@ -528,6 +534,67 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
 - (NSArray<ASQueuePlayerItem *> *)playlist
 {
     return self.playlistMutable;
+}
+
+#pragma mark - Controls
+
+- (BOOL)prevItem
+{
+    if (self.playlist.count && (self.currentItem.playlistIndex > 0))
+    {
+        NSUInteger currentItemPlaylistIndex = self.currentItem.playlistIndex;
+        
+        [(AVQueuePlayer *)self.videoPlayer removeAllItems];
+        
+        AVPlayerItem *tempItem = nil;
+        for (NSUInteger index = currentItemPlaylistIndex - 1; index < self.playlist.count; index++)
+        {
+            tempItem = [AVPlayerItem playerItemWithAsset:self.playlist[index].asset];
+            [(AVQueuePlayer *)self.videoPlayer insertItem:tempItem afterItem:nil];
+        }
+        
+        [self.videoPlayer play];
+        
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (BOOL)nextItem
+{
+    if (self.playlist.count && (self.currentItem.playlistIndex < self.playlist.count - 1))
+    {
+        [(AVQueuePlayer *)self.videoPlayer advanceToNextItem];
+        
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (BOOL)playItemAtIndex:(NSUInteger)itemIndex
+{
+    if (itemIndex >= self.playlist.count)
+    {
+        return NO;
+    }
+    
+    if (itemIndex == self.currentItem.playlistIndex)
+    {
+        return NO;
+    }
+    
+    [(AVQueuePlayer *)self.videoPlayer removeAllItems];
+    
+    AVPlayerItem *tempItem = nil;
+    for (NSUInteger index = itemIndex; index < self.playlist.count; index++)
+    {
+        tempItem = [AVPlayerItem playerItemWithAsset:self.playlist[index].asset];
+        [(AVQueuePlayer *)self.videoPlayer insertItem:tempItem afterItem:nil];
+    }
+    
+    return YES;
 }
 
 #pragma mark - Handle notifications
