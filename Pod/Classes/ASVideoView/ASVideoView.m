@@ -434,16 +434,10 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (IBAction)onCloseButtonTapped:(id)sender
 {
-    [self stopHideControlsTimer];
-    [self unsubscribeForVideoPlayerState];
-    self.player = nil;
-
     if (self.closeHandler)
     {
         self.closeHandler();
     }
-    
-    [self removeFromSuperview];
 }
 
 #pragma mark - Title
@@ -529,6 +523,10 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)reset
 {
+    [self stopHideControlsTimer];
+    [self unsubscribeForVideoPlayerState];
+    self.player = nil;
+
     ((AVPlayerLayer *)self.vwPlayback.layer).player = nil;
     [self.vwPlayback.layer removeFromSuperlayer];
 }
