@@ -27,6 +27,8 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
 @property (nonatomic, weak) IBOutlet UIView                     *vwToolbarContainer;
 @property (nonatomic, weak) IBOutlet UIView                     *vwPlayback;
 
+@property (nonatomic, weak) IBOutlet UITextView                 *txtVwLogs;
+
 @property (nonatomic, weak) IBOutlet UITableView                *tbVwPlaylist;
 //]
 
@@ -46,10 +48,20 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     [self.videoView setFrame:self.vwPlayback.bounds];
     [self.vwPlayback addSubview:self.videoView];
     
+//    __weak typeof(self) weakSelf = self;
+//    self.videoView.player.logs = ^(NSString *log)
+//    {
+//        weakSelf.txtVwLogs.text = [weakSelf.txtVwLogs.text stringByAppendingString:[NSString stringWithFormat:@"\n%@", log]];
+//        
+//        [weakSelf.txtVwLogs scrollRangeToVisible:NSMakeRange(weakSelf.txtVwLogs.text.length - 1, 1)];
+//    };
+    
     [self addObserver:self
            forKeyPath:@"videoView.player.currentItem"
               options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
               context:ASVC_ContextCurrentPlayerItemObservation];
+    
+    self.txtVwLogs.layoutManager.allowsNonContiguousLayout = NO;
 }
 
 - (void)didReceiveMemoryWarning
@@ -83,56 +95,57 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     NSMutableArray *paths = [NSMutableArray array];
 //    if (step % 2 == 0)
     {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Mother Instinct - Gazoon"
-                                                    url:@"https://api.rlje.us/broker/?token=GT_orHiPSoTgrTKhBrTZ_ENBS-ykO9fIwIEAihXGxJDDFAZfP79O97jj2IADIp5tXTPZqD7jxbNOhnIfQ==&asset_id=645&codec=HLS"
-                                               userInfo:@{}];
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"On Air"
+                                                    url:@"http://testcontent.qello.com.s3.amazonaws.com/encoding/live/1/1.m3u8"
+                                               userInfo:@{}
+                                          playlistIndex:0];
         
         [items addObject:item];
         
-        [paths addObject:[NSIndexPath indexPathForRow:self.videoView.player.playlist.count
+        [paths addObject:[NSIndexPath indexPathForRow:0
                                            inSection:0]];
     }
-//    else if (step % 3 == 0)
-    {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Mystery"
-                                                    url:@"https://api.rlje.us/broker/?token=GT_orHiPSoTgrTKhBrTZ_ENBS-ykO9fIwIEAihXGxJDDFAZfP79O97jj2IADIp5tXTPZqD7jxbNOhnIfQ==&asset_id=5925&codec=HLS"
-                                               userInfo:@{}];
+////    else if (step % 3 == 0)
+//    {
+        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Test Meta"
+                                                    url:@"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear1/prog_index.m3u8"
+                                               userInfo:@{}
+                                          playlistIndex:1];
         
         [items addObject:item];
         
-        [paths addObject:[NSIndexPath indexPathForRow:[paths.firstObject row] + 1
+        [paths addObject:[NSIndexPath indexPathForRow:1
                                             inSection:0]];
-    }
-//    else
-    {
+//    }
+////    else
+//    {
         item = [[ASQueuePlayerItem alloc] initWithTitle:@"Colibri"
                                                     url:@"https://devimages.apple.com.edgekey.net/samplecode/avfoundationMedia/AVFoundationQueuePlayer_HLS2/master.m3u8"
-                                               userInfo:@{}];
+                                               userInfo:@{}
+                                          playlistIndex:2];
         
         [items addObject:item];
         
-        [paths addObject:[NSIndexPath indexPathForRow:[paths.firstObject row] + 2
+        [paths addObject:[NSIndexPath indexPathForRow:2
                                             inSection:0]];
-    }
+//    }
     
-    __weak typeof (self) weakSelf = self;
-    
-    [self.videoView.player addItemsToPlaylist:items
-                                   completion:^
-    {
-        [weakSelf.tbVwPlaylist beginUpdates];
-        
-        [weakSelf.tbVwPlaylist insertRowsAtIndexPaths:paths
-                                     withRowAnimation:UITableViewRowAnimationAutomatic];
-        
-        [weakSelf.tbVwPlaylist endUpdates];
-        
-        [weakSelf.tbVwPlaylist scrollToRowAtIndexPath:paths.lastObject
-                                     atScrollPosition:UITableViewScrollPositionMiddle
-                                             animated:YES];
-    }];
+    [self.videoView.player appendItemsToPlaylist:items];
+
+     [self.tbVwPlaylist beginUpdates];
+     
+     [self.tbVwPlaylist insertRowsAtIndexPaths:paths
+                                  withRowAnimation:UITableViewRowAnimationAutomatic];
+     
+     [self.tbVwPlaylist endUpdates];
+     
+     [self.tbVwPlaylist scrollToRowAtIndexPath:paths.lastObject
+                                  atScrollPosition:UITableViewScrollPositionMiddle
+                                          animated:YES];
     
     step++;
+    
+    [self.videoView.player playItemAtIndex:0];
 }
 
 - (IBAction)onPrevItemButtonTapped:(id)sender

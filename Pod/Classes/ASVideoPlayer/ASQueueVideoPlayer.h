@@ -22,12 +22,11 @@
 - (NSArray<ASQueuePlayerItem *> *)playlist;
 
 /**
- *  Adds items to playlist.
+ *  Appends items to the end of the playlist.
  *
- *  @param items ASQueuePlayerItems
+ *  @param items
  */
-- (void)addItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
-                completion:(void (^)())completion;
+- (void)appendItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items;
 
 /**
  *  Clears the current playlist.
@@ -49,6 +48,11 @@
 - (BOOL)nextItem;
 
 /**
+ *  Stops the player.
+ */
+- (void)stop;
+
+/**
  *  Plays the item at "itemIndex".
  *
  *  @param itemIndex
@@ -56,5 +60,14 @@
  *  @return NO if the index is out of bounds or already playing that item.
  */
 - (BOOL)playItemAtIndex:(NSUInteger)itemIndex;
+
+/**
+ *  Retrieves the index of item that matches "itemURL".
+ *
+ *  @param itemURL
+ *
+ *  @return -1 if the item does not exist in the playlist.
+ */
+- (NSInteger)indexForItemURL:(NSString *)itemURL;
 
 @end

@@ -13,11 +13,12 @@
 @class ASVideoEvent;
 //]
 
-// Extern
+// Externs
 //[
 FOUNDATION_EXTERN void *ASVP_ContextRateObservation;
 FOUNDATION_EXTERN void *ASVP_ContextStatusObservation;
 FOUNDATION_EXTERN void *ASVP_ContextCurrentItemObservation;
+FOUNDATION_EXTERN void *ATVP_ContextBufferObservation;
 
 FOUNDATION_EXTERN NSString const *kASVP_TracksKey;
 FOUNDATION_EXTERN NSString const *kASVP_PlayableKey;

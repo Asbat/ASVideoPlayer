@@ -7,6 +7,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <AVKit/AVKit.h>
+#import <MediaPlayer/MediaPlayer.h>
 
 #import "ASVideoView.h"
 #import "ASVideoEvent.h"
@@ -42,6 +43,7 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 @property (nonatomic, strong) IBOutlet UIView                   *vwOverlayContainer;
 @property (nonatomic, strong) IBOutlet UIView                   *vwTopBar;
 @property (nonatomic, strong) IBOutlet UIView                   *vwBottomBar;
+@property (nonatomic, strong) IBOutlet UIView                   *vwAirPlay;
 
 @property (nonatomic, strong) IBOutlet UIActivityIndicatorView  *vwActivityIndicator;
 
@@ -98,6 +100,8 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)awakeFromNib
 {
+    [self addAirPlayFunctionality];
+    
     self.player                         = [ASQueueVideoPlayer new];
     self.player.delegate                = self;
     
@@ -149,6 +153,12 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             [self disablePlayerButtons];
             [self enableDoneButton];
     
+            break;
+        }
+        case ASVideoPlayerState_LoadingContent:
+        {
+            [self busy:YES];
+            
             break;
         }
             
@@ -243,6 +253,17 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
                                change:change
                               context:context];
     }
+}
+
+#pragma mark - AirPlay
+
+- (void)addAirPlayFunctionality
+{
+    // Display system AirPlay button.
+    MPVolumeView *volumeView = [[MPVolumeView alloc] initWithFrame:self.vwAirPlay.bounds];
+    volumeView.showsVolumeSlider = NO;
+    volumeView.showsRouteButton = YES;
+    [self.vwAirPlay addSubview:volumeView];
 }
 
 #pragma mark - Play, Stop buttons

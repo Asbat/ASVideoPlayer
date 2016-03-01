@@ -157,12 +157,22 @@
                                                 <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                             </state>
                                         </button>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kVP-I1-vs9">
+                                            <rect key="frame" x="524" y="12" width="24" height="20"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="24" id="dPo-GT-aa6"/>
+                                                <constraint firstAttribute="height" constant="20" id="f4N-iM-QcR"/>
+                                            </constraints>
+                                        </view>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                     <constraints>
                                         <constraint firstAttribute="trailing" secondItem="acT-Av-81M" secondAttribute="trailing" constant="20" id="4t2-pi-iGa"/>
                                         <constraint firstItem="RCf-m9-hlA" firstAttribute="top" secondItem="SSV-OY-Xck" secondAttribute="top" constant="12" id="7ao-vx-AE4"/>
                                         <constraint firstAttribute="trailing" secondItem="RCf-m9-hlA" secondAttribute="trailing" constant="20" id="VFU-HR-wKH"/>
+                                        <constraint firstAttribute="bottom" secondItem="kVP-I1-vs9" secondAttribute="bottom" constant="12" id="XG9-PU-T2X"/>
+                                        <constraint firstAttribute="trailing" secondItem="kVP-I1-vs9" secondAttribute="trailing" constant="20" id="eeO-KA-kYB"/>
                                         <constraint firstAttribute="bottom" secondItem="acT-Av-81M" secondAttribute="bottom" constant="10" id="hkw-7s-DIj"/>
                                     </constraints>
                                 </view>
@@ -287,6 +297,7 @@
                 <outlet property="lblTitle" destination="iqm-CL-7EO" id="Jmv-Y7-rVX"/>
                 <outlet property="scrubber" destination="FiL-Jq-r56" id="J9r-LJ-6rO"/>
                 <outlet property="vwActivityIndicator" destination="boj-wC-nTZ" id="oNr-2k-Xlt"/>
+                <outlet property="vwAirPlay" destination="kVP-I1-vs9" id="Cji-gw-yu4"/>
                 <outlet property="vwBottomBar" destination="bNP-Pi-Woz" id="86B-Ef-fjW"/>
                 <outlet property="vwOverlayContainer" destination="0lD-Fo-3fw" id="eIO-O6-wZr"/>
                 <outlet property="vwPlayback" destination="JGj-fe-46x" id="ULO-Lg-NvP"/>

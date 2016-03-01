@@ -37,7 +37,7 @@
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="854-yx-I8H">
                                         <rect key="frame" x="300" y="49" width="299.5" height="50"/>
-                                        <state key="normal" title="Clear"/>
+                                        <state key="normal" title="Clear Playlist"/>
                                         <connections>
                                             <action selector="onClearPlaylistTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="WPc-Ca-6Mm"/>
                                         </connections>
@@ -93,10 +93,11 @@
                                 </constraints>
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="NP1-PZ-J7D">
-                                <rect key="frame" x="0.0" y="230" width="600" height="271"/>
+                                <rect key="frame" x="0.0" y="230" width="600" height="80"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="324" id="6rj-Qn-1AU"/>
+                                    <constraint firstAttribute="height" constant="80" id="EAS-b6-YDu"/>
                                 </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ASTestCell" id="GEc-3u-pv7" customClass="ASTestCell">
@@ -109,7 +110,7 @@
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="URL" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sjt-RP-uqy">
                                                     <rect key="frame" x="13" y="-8" width="573" height="51.5"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
@@ -135,6 +136,12 @@
                                     <outlet property="delegate" destination="whP-gf-Uak" id="dd7-78-LbR"/>
                                 </connections>
                             </tableView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="G1M-9D-DNX">
+                                <rect key="frame" x="0.0" y="310" width="600" height="187"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -144,20 +151,26 @@
                             <constraint firstItem="4Rf-vg-SWh" firstAttribute="top" secondItem="TpU-gO-2f1" secondAttribute="topMargin" id="PiE-P7-0Tf"/>
                             <constraint firstItem="4Rf-vg-SWh" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leadingMargin" constant="-20" id="Qw1-TJ-EZ0"/>
                             <constraint firstAttribute="trailingMargin" secondItem="NP1-PZ-J7D" secondAttribute="trailing" constant="-20" id="YbG-Sy-1bi"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="G1M-9D-DNX" secondAttribute="trailing" constant="-20" id="a0u-mM-frY"/>
                             <constraint firstItem="NP1-PZ-J7D" firstAttribute="top" secondItem="4Rf-vg-SWh" secondAttribute="bottom" id="jr4-Yv-Gpx"/>
+                            <constraint firstItem="ltm-lF-dgT" firstAttribute="top" secondItem="G1M-9D-DNX" secondAttribute="bottom" constant="3" id="lvP-Zo-bIQ"/>
                             <constraint firstItem="NP1-PZ-J7D" firstAttribute="top" secondItem="4Rf-vg-SWh" secondAttribute="bottom" constant="3" id="mTw-fs-2nA"/>
                             <constraint firstAttribute="trailingMargin" secondItem="ltm-lF-dgT" secondAttribute="trailing" constant="-20" id="pa4-hB-rRn"/>
                             <constraint firstItem="ltm-lF-dgT" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leadingMargin" constant="-20" id="pcy-bG-MYd"/>
+                            <constraint firstItem="G1M-9D-DNX" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leadingMargin" constant="-20" id="weG-lH-7eW"/>
+                            <constraint firstItem="G1M-9D-DNX" firstAttribute="top" secondItem="NP1-PZ-J7D" secondAttribute="bottom" id="zc3-MU-RCi"/>
                             <constraint firstAttribute="trailingMargin" secondItem="4Rf-vg-SWh" secondAttribute="trailing" constant="-20" id="zo4-L0-CHJ"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
                                 <exclude reference="jr4-Yv-Gpx"/>
+                                <exclude reference="PDA-Fu-7A1"/>
                             </mask>
                         </variation>
                     </view>
                     <connections>
                         <outlet property="tbVwPlaylist" destination="NP1-PZ-J7D" id="Rtl-S2-pRD"/>
+                        <outlet property="txtVwLogs" destination="G1M-9D-DNX" id="mDJ-gl-Zjv"/>
                         <outlet property="vwPlayback" destination="4Rf-vg-SWh" id="HhA-mJ-cBu"/>
                         <outlet property="vwToolbarContainer" destination="ltm-lF-dgT" id="98l-WJ-uIV"/>
                     </connections>

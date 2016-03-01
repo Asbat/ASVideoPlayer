@@ -20,11 +20,17 @@
 static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_ContextCurrentItemDurationObservation;
 
 @interface ASQueueVideoPlayer ()
+{
+    UIBackgroundTaskIdentifier _bgExtendedTask;
+}
 
 @property (nonatomic, strong) NSMutableArray<ASQueuePlayerItem *>       *playlistMutable;
 @property (nonatomic, strong) NSMutableDictionary                       *itemsDict;
 
 @property (nonatomic, strong) ASQueuePlayerItem                         *currentItem;
+
+@property (nonatomic, assign) BOOL                                      stopPreparingAssets;
+@property (nonatomic, strong) ASQueuePlayerItem                         *currentPreparingItem;
 
 @end
 
@@ -42,6 +48,8 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     
     self.playlistMutable        = [NSMutableArray<ASQueuePlayerItem *> array];
     self.itemsDict              = [NSMutableDictionary new];
+    
+    [self addAirPlayFunctionality];
 
     [self initScrubberTimer];
     
@@ -49,6 +57,17 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillResignActive:)
                                                  name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
+    // Create notification observers for background tasks.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(resetBackgroundTask:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(stopBackgroundTask:)
+                                                 name:UIApplicationWillEnterForegroundNotification
                                                object:nil];
     
     /* Observe the AVPlayer "rate" property to update the scrubber control. */
@@ -74,6 +93,11 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
            forKeyPath:@"videoPlayer.currentItem.duration"
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
               context:&ASVP_ContextCurrentItemDurationObservation];
+    
+    [self addObserver:self
+           forKeyPath:@"videoPlayer.currentItem.playbackBufferEmpty"
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:&ATVP_ContextBufferObservation];
     
     if ([self.delegate respondsToSelector:@selector(outputViewForVideoPlayer:)])
     {
@@ -112,8 +136,20 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
               forKeyPath:@"videoPlayer.currentItem.duration"
                  context:&ASVP_ContextCurrentItemDurationObservation];
     
+    [self removeObserver:self
+              forKeyPath:@"videoPlayer.currentItem.playbackBufferEmpty"
+                 context:ATVP_ContextBufferObservation];
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillResignActiveNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidEnterBackgroundNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillEnterForegroundNotification
                                                   object:nil];
     
     self.videoPlayer = nil;
@@ -121,18 +157,29 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     [self setState:ASVideoPlayerState_Suspended];
 }
 
-- (void)addItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
-                completion:(void (^)())completion
+- (void)appendItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
 {
-    [self addItemsToPlaylist:items index:0 completion:completion];
+    for (ASQueuePlayerItem *item in items)
+    {
+        // Add only unique items.
+        if (self.itemsDict[item.asset.URL.absoluteString] == nil)
+        {
+            [self.playlistMutable addObject:item];
+            self.itemsDict[item.asset.URL.absoluteString] = item;
+            
+        }
+    }
 }
 
-- (void)addItemsToPlaylist:(NSArray<ASQueuePlayerItem *> *)items
-                     index:(NSUInteger)index
-                completion:(void (^)())completion
+- (void)prepareItems:(NSUInteger)startIndex
+          completion:(void (^)())completion
 {
-    if (index >= items.count)
+    if (self.stopPreparingAssets)
     {
+        ASVP_LOG(@"Preparing Interrupted.");
+        
+        [self.currentPreparingItem cancelPreparing];
+        
         if (completion)
         {
             completion();
@@ -141,16 +188,39 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
         return;
     }
     
-    ASQueuePlayerItem *item = items[index];
+    if (startIndex >= self.playlist.count)
+    {
+        ASVP_LOG(@"Preparing Completed.");
+        if (completion)
+        {
+            completion();
+        }
+        
+        return;
+    }
+    
+    self.currentPreparingItem = self.playlist[startIndex];
     
     /* Tells the asset to load the values of any of the specified keys that are not already loaded. */
-    __block __typeof(self) weakSelf = self;
-    __block __typeof(item) weakItem = item;
-    [item prepareForPlaylistIndex:self.playlist.count
-                       completion:^(NSError *error)
+    __weak __typeof(self) weakSelf = self;
+    [self.currentPreparingItem prepareItem:^(NSError *error)
     {
         dispatch_async( dispatch_get_main_queue(),
                        ^{
+                           if (weakSelf.stopPreparingAssets)
+                           {
+                               ASVP_LOG(@"Preparing Interrupted.");
+                               
+                               [weakSelf.currentPreparingItem cancelPreparing];
+                               
+                               if (completion)
+                               {
+                                   completion();
+                               }
+                               
+                               return;
+                           }
+                           
                            if (error)
                            {
                                [weakSelf assetFailedToPrepareForPlayback:error];
@@ -158,11 +228,8 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
                                return;
                            }
                            
-                           [self.playlistMutable addObject:item];
-                           self.itemsDict[item.asset.URL.absoluteString] = item;
-                           
                            /* IMPORTANT: Must dispatch to main queue in order to operate on the AVQueuePlayer and AVPlayerItem. */
-                           [(AVQueuePlayer *)weakSelf.videoPlayer insertItem:[AVPlayerItem playerItemWithAsset:weakItem.asset]
+                           [(AVQueuePlayer *)weakSelf.videoPlayer insertItem:[AVPlayerItem playerItemWithAsset:weakSelf.currentPreparingItem.asset]
                                                                    afterItem:nil];
                            
                            // Start playing.
@@ -171,7 +238,7 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
                                [weakSelf play];
                            }
                            
-                           [weakSelf addItemsToPlaylist:items index:index + 1 completion:completion];
+                           [weakSelf prepareItems:startIndex + 1 completion:completion];
                        });
     }];
 }
@@ -321,6 +388,14 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     {
         
     }
+    else if (context == ATVP_ContextBufferObservation)
+    {
+        if (self.videoPlayer.currentItem.playbackBufferEmpty)
+        {
+            /* Buffer is empty, which will cause player to pause, so show spinner. */
+            [self setState:ASVideoPlayerState_LoadingContent];
+        }
+    }
     else
     {
         [super observeValueForKeyPath:path ofObject:object change:change context:context];
@@ -345,6 +420,16 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     self.userInfo = @{@"error" : error};
     
     [self setState:ASVideoPlayerState_Failed];
+}
+
+#pragma mark - AirPlay
+
+- (void)addAirPlayFunctionality
+{
+    // Set AirPlay properties for AVPlayer.
+    self.videoPlayer.allowsExternalPlayback                             = YES;
+    self.videoPlayer.usesExternalPlaybackWhileExternalScreenIsActive    = YES;
+    self.videoPlayer.externalPlaybackVideoGravity                       = AVLayerVideoGravityResizeAspect;
 }
 
 #pragma mark - Duration
@@ -580,21 +665,39 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
         return NO;
     }
     
-    if (itemIndex == self.currentItem.playlistIndex)
+    if (self.currentItem && (itemIndex == self.currentItem.playlistIndex))
     {
         return NO;
     }
     
+    self.stopPreparingAssets = YES;
+    [self.currentPreparingItem cancelPreparing];
+    
     [(AVQueuePlayer *)self.videoPlayer removeAllItems];
     
-    AVPlayerItem *tempItem = nil;
-    for (NSUInteger index = itemIndex; index < self.playlist.count; index++)
-    {
-        tempItem = [AVPlayerItem playerItemWithAsset:self.playlist[index].asset];
-        [(AVQueuePlayer *)self.videoPlayer insertItem:tempItem afterItem:nil];
-    }
+    self.stopPreparingAssets = NO;
+    [self prepareItems:itemIndex completion:nil];
     
     return YES;
+}
+
+- (NSInteger)indexForItemURL:(NSString *)itemURL
+{
+    ASQueuePlayerItem *item = self.itemsDict[itemURL];
+    if (item)
+    {
+        return item.playlistIndex;
+    }
+    
+    return -1;
+}
+
+- (void)stop
+{
+    self.stopPreparingAssets = YES;
+    [self.currentPreparingItem cancelPreparing];
+    
+    [(AVQueuePlayer *)self.videoPlayer removeAllItems];
 }
 
 #pragma mark - Handle notifications
@@ -603,6 +706,46 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
 {
     // Add handler for "going to background" notification.
     [self sendEventEnd];
+}
+
+- (void)resetBackgroundTask:(NSNotification*)notification
+{
+    // When app is sent to the background or the device is in sleep/standby mode,
+    // this method should be called to extend app's active background session.
+    //DLog(@"");
+    
+    UIApplication *thisApp = [UIApplication sharedApplication];
+    
+    // If an existing background task is running,
+    // end it first before starting a new one.
+    if (_bgExtendedTask != UIBackgroundTaskInvalid) {
+        [thisApp endBackgroundTask:_bgExtendedTask];
+        _bgExtendedTask = UIBackgroundTaskInvalid;
+    }
+    
+    // Start new background task to extend background session.
+    _bgExtendedTask = [thisApp beginBackgroundTaskWithExpirationHandler:^
+                       {
+                           if (_bgExtendedTask != UIBackgroundTaskInvalid)
+                           {
+                               [[UIApplication sharedApplication] endBackgroundTask:_bgExtendedTask];
+                               _bgExtendedTask = UIBackgroundTaskInvalid;
+                           }
+                       }];
+}
+
+- (void)stopBackgroundTask:(NSNotification*)notification
+{
+    // When app returns to the foreground as the active app,
+    // this method should be called to end any extended background session.
+    //DLog(@"");
+    
+    UIApplication *thisApp = [UIApplication sharedApplication];
+    if (_bgExtendedTask != UIBackgroundTaskInvalid)
+    {
+        [thisApp endBackgroundTask:_bgExtendedTask];
+        _bgExtendedTask = UIBackgroundTaskInvalid;
+    }
 }
 
 #pragma mark - Helpers

@@ -29,10 +29,12 @@
 
 - (instancetype)initWithTitle:(NSString *)title
                           url:(NSString *)url
-                     userInfo:(NSDictionary *)userInfo;
+                     userInfo:(NSDictionary *)userInfo
+                playlistIndex:(NSUInteger)playlistIndex;
 
-- (void)prepareForPlaylistIndex:(NSUInteger)playlistIndex
-                     completion:(void (^)(NSError *error))completion;
+- (void)prepareItem:(void (^)(NSError *error))completion;
+
+- (void)cancelPreparing;
 
 + (NSError *)validateAsset:(AVURLAsset *)asset
                   withKeys:(NSArray *)requestedKeys;

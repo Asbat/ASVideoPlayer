@@ -23,19 +23,20 @@
 - (instancetype)initWithTitle:(NSString *)title
                           url:(NSString *)url
                      userInfo:(NSDictionary *)userInfo
+                playlistIndex:(NSUInteger)playlistIndex
 {
     if (self = [super init])
     {
-        self.title      = title;
-        self.asset      = [AVURLAsset assetWithURL:[NSURL URLWithString:url]];
-        self.userInfo   = userInfo;
+        self.title              = title;
+        self.asset              = [AVURLAsset assetWithURL:[NSURL URLWithString:url]];
+        self.userInfo           = userInfo;
+        _playlistIndex          = playlistIndex;
     }
     
     return self;
 }
 
-- (void)prepareForPlaylistIndex:(NSUInteger)playlistIndex
-                     completion:(void (^)(NSError *error))completion
+- (void)prepareItem:(void (^)(NSError *error))completion
 {
     if (self.asset == nil)
     {
@@ -52,10 +53,20 @@
         return;
     }
     
+    if (self.isPrepared)
+    {
+        if (completion)
+        {
+            completion(nil);
+        }
+        
+        return;
+    }
+    
     NSArray *requestedKeys = @[kASVP_PlayableKey];
     
     /* Tells the asset to load the values of any of the specified keys that are not already loaded. */
-    __block __typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [self.asset loadValuesAsynchronouslyForKeys:requestedKeys
                               completionHandler:
      ^{
@@ -69,8 +80,8 @@
          
          if (error == nil)
          {
-             weakSelf->_isPrepared      = YES;
-             weakSelf->_playlistIndex   = playlistIndex;
+             __strong typeof(weakSelf) sSelf    = weakSelf;
+             sSelf->_isPrepared                 = YES;
          }
          
          if (completion)
@@ -78,6 +89,11 @@
              completion(error);
          }
      }];
+}
+
+- (void)cancelPreparing
+{
+    [self.asset cancelLoading];
 }
 
 /*

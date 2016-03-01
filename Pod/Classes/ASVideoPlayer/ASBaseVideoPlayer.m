@@ -13,6 +13,7 @@
 void *ASVP_ContextRateObservation                           = &ASVP_ContextRateObservation;
 void *ASVP_ContextStatusObservation                         = &ASVP_ContextStatusObservation;
 void *ASVP_ContextCurrentItemObservation                    = &ASVP_ContextCurrentItemObservation;
+void *ATVP_ContextBufferObservation                         = &ATVP_ContextBufferObservation;
 
 NSString const *kASVP_TracksKey                             = @"tracks";
 NSString const *kASVP_PlayableKey                           = @"playable";
@@ -235,7 +236,7 @@ NSString const *kASVP_PlayableKey                           = @"playable";
                                 ];
     
     /* Tells the asset to load the values of any of the specified keys that are not already loaded. */
-    __block __typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [self.urlAsset loadValuesAsynchronouslyForKeys:requestedKeys
                                  completionHandler:
      ^{
