@@ -66,7 +66,6 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 @property (nonatomic, strong) IBOutlet UIButton                 *btnPictureInPicture;
 //]
 
-//@property (nonatomic, strong) ASVideoPlayer                     *player;
 @property (nonatomic, strong) ASQueueVideoPlayer                *player;
 
 @property (nonatomic, strong) AVPictureInPictureController      *pipController;
@@ -461,6 +460,11 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
     }
 }
 
+- (IBAction)onTitleTapped:(id)sender
+{
+    
+}
+
 #pragma mark - Title
 
 - (void)updateTitle:(NSString *)title
@@ -607,6 +611,11 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
         [self updateTitle:[NSString stringWithFormat:@"%d: %@", (int)[currentItem playlistIndex] + 1, [currentItem title]]];
         [self toggleControlls:YES];
     }
+}
+
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer meta:(NSArray *)meta
+{
+    NSLog(@"META = %@", meta);
 }
 
 #pragma mark - Timer Helpers

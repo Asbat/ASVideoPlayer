@@ -79,12 +79,17 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 
 @protocol ASVideoPlayerDelegate <NSObject>
 
-- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer event:(ASVideoEvent *)event;
-- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentTime:(double)currentTime timeLeft:(double)timeLeft duration:(double)duration;
-
 - (AVPlayerLayer *)outputViewForVideoPlayer:(ASBaseVideoPlayer *)videoPlayer;
 
+@optional
+
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer event:(ASVideoEvent *)event;
+
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentTime:(double)currentTime timeLeft:(double)timeLeft duration:(double)duration;
+
 - (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentItem:(id)currentItem;
+
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer meta:(NSArray *)meta;
 
 @end
 

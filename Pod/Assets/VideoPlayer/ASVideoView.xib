@@ -105,6 +105,12 @@
                                                 <action selector="pictureInPictureButtonPressed:" destination="0FB-5U-imS" eventType="touchUpInside" id="LWV-Nl-xeJ"/>
                                             </connections>
                                         </button>
+                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VWO-ja-Rhm" userLabel="Button - title">
+                                            <rect key="frame" x="81" y="0.0" width="409" height="63"/>
+                                            <connections>
+                                                <action selector="onTitleTapped:" destination="0FB-5U-imS" eventType="touchUpInside" id="FGj-4d-1Qg"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
                                     <constraints>

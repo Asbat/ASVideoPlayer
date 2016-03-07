@@ -18,6 +18,7 @@
 #endif
 
 static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_ContextCurrentItemDurationObservation;
+static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_ContextCurrentItemMetabservation;
 
 @interface ASQueueVideoPlayer ()
 {
@@ -99,6 +100,11 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
               context:&ATVP_ContextBufferObservation];
     
+    [self addObserver:self
+           forKeyPath:@"videoPlayer.currentItem.timedMetadata"
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionInitial
+              context:&ASVP_ContextCurrentItemMetabservation];
+    
     if ([self.delegate respondsToSelector:@selector(outputViewForVideoPlayer:)])
     {
         AVPlayerLayer *playerLayer = [self.delegate outputViewForVideoPlayer:self];
@@ -139,6 +145,10 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
     [self removeObserver:self
               forKeyPath:@"videoPlayer.currentItem.playbackBufferEmpty"
                  context:ATVP_ContextBufferObservation];
+    
+    [self removeObserver:self
+              forKeyPath:@"videoPlayer.currentItem.timedMetadata"
+                 context:&ASVP_ContextCurrentItemMetabservation];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillResignActiveNotification
@@ -396,6 +406,22 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
             [self setState:ASVideoPlayerState_LoadingContent];
         }
     }
+    else if (context == ASVP_ContextCurrentItemMetabservation)
+    {
+        if ([self.delegate respondsToSelector:@selector(videoPlayer:meta:)])
+        {
+            NSMutableArray *metaItems = [NSMutableArray array];
+            for (AVMetadataItem *metaItem in self.videoPlayer.currentItem.timedMetadata)
+            {
+                [metaItems addObject:@{
+                                      @"identifier" : metaItem.identifier?  : @"",
+                                      @"value"      : metaItem.value?       : @"",
+                                      }];
+            }
+            
+            [self.delegate videoPlayer:self meta:metaItems];
+        }
+    }
     else
     {
         [super observeValueForKeyPath:path ofObject:object change:change context:context];
@@ -501,7 +527,6 @@ static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_
         {
             [self.delegate videoPlayer:self currentTime:time timeLeft:duration - time duration:duration];
         }
-        
         
         // Sync playedTime by starting to track played time when video starts playing.
         if (time >= 1.0 && [self isPlaying])
