@@ -216,8 +216,14 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
             
             NSError *error = self.player.userInfo[@"error"];
             
-            if (error)
+            ASQueuePlayerItem *item = self.player.userInfo[@"current_item"];
+            
+            if (error && [item isKindOfClass:[ASQueuePlayerItem class]])
             {
+                if (item.state != ASQueuePlayerItemStateFailed)
+                {
+                    break;
+                }
                 /* Display the error. */
                 UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
                                                                     message:[error localizedFailureReason]

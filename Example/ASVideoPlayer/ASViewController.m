@@ -96,7 +96,7 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
 //    if (step % 2 == 0)
     {
         item = [[ASQueuePlayerItem alloc] initWithTitle:@"On Air"
-                                                    url:@"http://testcontent.qello.com.s3.amazonaws.com/encoding/live/1/1.m3u8"
+                                                    url:@"http://testcontent.qello.com.s3.amazonaws.com/encoding/live/1/2.m3u8"
                                                userInfo:@{}
                                           playlistIndex:0];
         

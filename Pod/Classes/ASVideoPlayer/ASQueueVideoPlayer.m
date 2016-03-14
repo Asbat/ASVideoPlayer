@@ -234,8 +234,6 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                            if (error)
                            {
                                [weakSelf assetFailedToPrepareForPlayback:error];
-                               
-                               return;
                            }
                            
                            /* IMPORTANT: Must dispatch to main queue in order to operate on the AVQueuePlayer and AVPlayerItem. */
@@ -349,6 +347,9 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                 
             case AVPlayerItemStatusFailed:
             {
+                [self.currentItem updateStatus:ASQueuePlayerItemStateFailed
+                                         error:self.videoPlayer.currentItem.error];
+
                 [self assetFailedToPrepareForPlayback:self.videoPlayer.currentItem.error];
                 
                 ASVP_LOG(@"Current Item Status: Failed");
@@ -443,7 +444,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 {
     [self syncScrubber];
     
-    self.userInfo = @{@"error" : error};
+    self.userInfo = @{@"error" : error, @"current_item" : self.currentPreparingItem? : @""};
     
     [self setState:ASVideoPlayerState_Failed];
 }

@@ -36,6 +36,12 @@
     return self;
 }
 
+- (void)updateStatus:(ASQueuePlayerItemState)status error:(NSError *)error
+{
+    _state = status;
+    _error = error;
+}
+
 - (void)prepareItem:(void (^)(NSError *error))completion
 {
     if (self.asset == nil)
@@ -53,7 +59,7 @@
         return;
     }
     
-    if (self.isPrepared)
+    if (self.state == ASQueuePlayerItemStatePrepared)
     {
         if (completion)
         {
@@ -64,6 +70,16 @@
     }
     
     NSArray *requestedKeys = @[kASVP_PlayableKey];
+    
+    if (self.state == ASQueuePlayerItemStateFailed)
+    {
+        if (completion)
+        {
+            completion(self.error);
+        }
+        
+        return;
+    }
     
     /* Tells the asset to load the values of any of the specified keys that are not already loaded. */
     __weak __typeof(self) weakSelf = self;
@@ -78,10 +94,14 @@
          NSError *error = [ASQueuePlayerItem validateAsset:weakSelf.asset
                                                   withKeys:requestedKeys];
          
+         __strong typeof(weakSelf) sSelf        = weakSelf;
          if (error == nil)
          {
-             __strong typeof(weakSelf) sSelf    = weakSelf;
-             sSelf->_isPrepared                 = YES;
+             sSelf->_state                      = ASQueuePlayerItemStatePrepared;
+         }
+         else
+         {
+             sSelf->_state                      = ASQueuePlayerItemStateFailed;
          }
          
          if (completion)
