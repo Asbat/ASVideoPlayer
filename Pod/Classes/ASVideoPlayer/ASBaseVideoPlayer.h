@@ -24,6 +24,16 @@ FOUNDATION_EXTERN NSString const *kASVP_TracksKey;
 FOUNDATION_EXTERN NSString const *kASVP_PlayableKey;
 //]
 
+#define ASVP_DEBUG
+
+#ifdef ASVP_DEBUG
+    #define ASVP_LOG( s, ... ) NSLog( @"<%p %@:%@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], [[NSString stringWithUTF8String:__func__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] );
+    #define ASVP_CLIENT_LOG( player, s, ...) if (player.logs) player.logs([NSString stringWithFormat:(s), ##__VA_ARGS__])
+#else
+    #define ASVP_LOG( s, ... )
+    #define ASVP_CLIENT_LOG( player, s, ...)
+#endif
+
 typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 {
     /**
@@ -103,6 +113,8 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 
 @property (nonatomic, assign, readonly) BOOL                    isPlaying;
 @property (nonatomic, assign, readonly) ASVideoPlayerState      state;
+
+@property (nonatomic, copy) void (^logs)(NSString *log);
 
 /**
  *  Override this method if your custom class is going to inherit ASBaseVideoPlayer so that you can specify 

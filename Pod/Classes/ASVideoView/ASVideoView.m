@@ -214,24 +214,24 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
             [self busy:NO];
             
-            NSError *error = self.player.userInfo[@"error"];
-            
-            ASQueuePlayerItem *item = self.player.userInfo[@"current_item"];
-            
-            if (error && [item isKindOfClass:[ASQueuePlayerItem class]])
-            {
-                if (item.state != ASQueuePlayerItemStateFailed)
-                {
-                    break;
-                }
-                /* Display the error. */
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
-                                                                    message:[error localizedFailureReason]
-                                                                   delegate:nil
-                                                          cancelButtonTitle:@"OK"
-                                                          otherButtonTitles:nil];
-                [alertView show];
-            }
+//            NSError *error = self.player.userInfo[@"error"];
+//            
+//            ASQueuePlayerItem *item = self.player.userInfo[@"current_item"];
+//            
+//            if (error && [item isKindOfClass:[ASQueuePlayerItem class]])
+//            {
+//                if (item.state != ASQueuePlayerItemStateFailed)
+//                {
+//                    break;
+//                }
+//                /* Display the error. */
+//                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
+//                                                                    message:[error localizedFailureReason]
+//                                                                   delegate:nil
+//                                                          cancelButtonTitle:@"OK"
+//                                                          otherButtonTitles:nil];
+//                [alertView show];
+//            }
             
             break;
         }
@@ -621,7 +621,7 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer meta:(NSArray *)meta
 {
-    NSLog(@"META = %@", meta);
+    // Handle meta data here.
 }
 
 #pragma mark - Timer Helpers

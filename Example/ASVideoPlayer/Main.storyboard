@@ -43,7 +43,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dUm-a0-rIM">
-                                        <rect key="frame" x="0.0" y="0.0" width="299.5" height="50"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="172.5" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="hON-sy-fLr"/>
                                         </constraints>
@@ -53,7 +53,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7wL-H8-YA4">
-                                        <rect key="frame" x="300" y="0.0" width="299.5" height="50"/>
+                                        <rect key="frame" x="180" y="0.0" width="207.5" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="fmW-bJ-Fy4"/>
                                         </constraints>
@@ -62,27 +62,41 @@
                                             <action selector="onNextItemButtonTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="xF2-ot-hPX"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gTE-VD-y7z">
+                                        <rect key="frame" x="392" y="0.0" width="207.5" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="EFp-BQ-7ms"/>
+                                        </constraints>
+                                        <state key="normal" title="Delete"/>
+                                        <connections>
+                                            <action selector="onDeleteItemButtonTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="0N4-QT-5IK"/>
+                                            <action selector="onNextItemButtonTapped:" destination="whP-gf-Uak" eventType="touchUpInside" id="sXo-r2-KfF"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="7wL-H8-YA4" firstAttribute="leading" secondItem="Opt-lA-Z7c" secondAttribute="trailing" constant="-0.5" id="2Ua-hR-UuX"/>
+                                    <constraint firstItem="7wL-H8-YA4" firstAttribute="leading" secondItem="Opt-lA-Z7c" secondAttribute="trailing" constant="-120.5" id="2Ua-hR-UuX"/>
                                     <constraint firstItem="Opt-lA-Z7c" firstAttribute="leading" secondItem="rcC-VT-HTk" secondAttribute="trailing" id="3pN-Vq-EfV"/>
                                     <constraint firstItem="rcC-VT-HTk" firstAttribute="top" secondItem="ltm-lF-dgT" secondAttribute="top" constant="49" id="4gW-Ic-tSN"/>
                                     <constraint firstItem="dUm-a0-rIM" firstAttribute="top" secondItem="ltm-lF-dgT" secondAttribute="top" id="5PN-4x-4gI"/>
                                     <constraint firstItem="dUm-a0-rIM" firstAttribute="leading" secondItem="ltm-lF-dgT" secondAttribute="leading" id="HbO-1c-bCN"/>
                                     <constraint firstItem="Opt-lA-Z7c" firstAttribute="centerX" secondItem="ltm-lF-dgT" secondAttribute="centerX" id="Jeg-YP-unR"/>
+                                    <constraint firstItem="gTE-VD-y7z" firstAttribute="top" secondItem="ltm-lF-dgT" secondAttribute="top" id="N8d-41-spT"/>
+                                    <constraint firstItem="gTE-VD-y7z" firstAttribute="leading" secondItem="7wL-H8-YA4" secondAttribute="trailing" constant="4.5" id="Ovm-sd-NE7"/>
+                                    <constraint firstAttribute="trailing" secondItem="gTE-VD-y7z" secondAttribute="trailing" constant="0.5" id="XSZ-wg-JC2"/>
                                     <constraint firstItem="7wL-H8-YA4" firstAttribute="top" secondItem="ltm-lF-dgT" secondAttribute="top" id="XhI-aZ-tA5"/>
                                     <constraint firstAttribute="height" constant="100" id="bKL-hT-4DW"/>
                                     <constraint firstAttribute="trailing" secondItem="854-yx-I8H" secondAttribute="trailing" id="cTp-m5-wrH"/>
                                     <constraint firstItem="854-yx-I8H" firstAttribute="top" secondItem="ltm-lF-dgT" secondAttribute="top" constant="49" id="d8J-IU-dTP"/>
                                     <constraint firstAttribute="bottom" secondItem="rcC-VT-HTk" secondAttribute="bottom" constant="1" id="eQm-Xd-HFi"/>
                                     <constraint firstItem="854-yx-I8H" firstAttribute="leading" secondItem="rcC-VT-HTk" secondAttribute="trailing" id="hQr-nb-jrr"/>
-                                    <constraint firstAttribute="trailing" secondItem="7wL-H8-YA4" secondAttribute="trailing" constant="0.5" id="itj-uc-BMJ"/>
+                                    <constraint firstAttribute="trailing" secondItem="7wL-H8-YA4" secondAttribute="trailing" constant="212.5" id="itj-uc-BMJ"/>
                                     <constraint firstAttribute="bottom" secondItem="854-yx-I8H" secondAttribute="bottom" constant="1" id="l7Z-gw-55Z"/>
                                     <constraint firstAttribute="bottom" secondItem="Opt-lA-Z7c" secondAttribute="bottom" constant="1" id="p10-2c-Y4h"/>
                                     <constraint firstItem="Opt-lA-Z7c" firstAttribute="top" secondItem="ltm-lF-dgT" secondAttribute="top" constant="49" id="qOk-bN-pXn"/>
                                     <constraint firstItem="rcC-VT-HTk" firstAttribute="leading" secondItem="ltm-lF-dgT" secondAttribute="leading" id="uj9-17-Fwd"/>
-                                    <constraint firstItem="Opt-lA-Z7c" firstAttribute="leading" secondItem="dUm-a0-rIM" secondAttribute="trailing" id="vvR-0U-LSU"/>
+                                    <constraint firstItem="Opt-lA-Z7c" firstAttribute="leading" secondItem="dUm-a0-rIM" secondAttribute="trailing" constant="127" id="vvR-0U-LSU"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4Rf-vg-SWh" userLabel="View - playback">

@@ -9,14 +9,6 @@
 #import "ASQueueVideoPlayer.h"
 #import "ASBaseVideoPlayer_Private.h"
 
-#define ASVP_DEBUG
-
-#ifdef ASVP_DEBUG
-    #define ASVP_LOG( s, ... ) NSLog( @"<%p %@:%@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], [[NSString stringWithUTF8String:__func__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] );
-#else
-    #define ASVP_LOG( s, ... )
-#endif
-
 static void *ASVP_ContextCurrentItemDurationObservation                 = &ASVP_ContextCurrentItemDurationObservation;
 static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_ContextCurrentItemMetabservation;
 
@@ -174,6 +166,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
         // Add only unique items.
         if (self.itemsDict[item.asset.URL.absoluteString] == nil)
         {
+            [item updatePlaylistIndex:self.playlistMutable.count];
             [self.playlistMutable addObject:item];
             self.itemsDict[item.asset.URL.absoluteString] = item;
             
@@ -187,6 +180,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     if (self.stopPreparingAssets)
     {
         ASVP_LOG(@"Preparing Interrupted.");
+        ASVP_CLIENT_LOG(self, @"Preparing Interrupted.");
         
         [self.currentPreparingItem cancelPreparing];
         
@@ -201,6 +195,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     if (startIndex >= self.playlist.count)
     {
         ASVP_LOG(@"Preparing Completed.");
+        ASVP_CLIENT_LOG(self, @"Preparing Completed.");
         if (completion)
         {
             completion();
@@ -220,6 +215,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                            if (weakSelf.stopPreparingAssets)
                            {
                                ASVP_LOG(@"Preparing Interrupted.");
+                               ASVP_CLIENT_LOG(self, @"Preparing Interrupted.");
                                
                                [weakSelf.currentPreparingItem cancelPreparing];
                                
@@ -300,7 +296,6 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
             return;
         }
         
-        ASVP_LOG(@"Current Item StatusAsNumber: %@", statusAsNumber);
         switch (status)
         {
                 /* Indicates that the status of the player is not yet known because
@@ -310,6 +305,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                 [self setState:ASVideoPlayerState_Unknown];
                 
                 ASVP_LOG(@"Current Item Status: Unknown");
+                ASVP_CLIENT_LOG(self, @"Current Item Status: Unknown");
                 
                 break;
             }
@@ -329,6 +325,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                 self.videoPlayer.closedCaptionDisplayEnabled = self.enableSubtitles;
                 
                 ASVP_LOG(@"Current Item Status: Ready To Play");
+                ASVP_CLIENT_LOG(self, @"Current Item Status: Ready To Play");
                 
                 if (self.state == ASVideoPlayerState_Seeking)
                 {
@@ -352,7 +349,8 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 
                 [self assetFailedToPrepareForPlayback:self.videoPlayer.currentItem.error];
                 
-                ASVP_LOG(@"Current Item Status: Failed");
+                ASVP_LOG(@"Current Item Status: Failed(%@)", self.videoPlayer.currentItem.error);
+                ASVP_CLIENT_LOG(self, @"Current Item Status: Failed(%@)", self.videoPlayer.currentItem.error);
                 
                 break;
             }
@@ -362,6 +360,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     else if (context == ASVP_ContextRateObservation)
     {
         ASVP_LOG(@"rate = %f", self.videoPlayer.rate);
+        ASVP_CLIENT_LOG(self, @"rate = %f", self.videoPlayer.rate);
         
         if (self.state == ASVideoPlayerState_Seeking)
         {
@@ -421,6 +420,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
             }
             
             [self.delegate videoPlayer:self meta:metaItems];
+            [self printMeta];
         }
     }
     else
@@ -653,18 +653,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 {
     if (self.playlist.count && (self.currentItem.playlistIndex > 0))
     {
-        NSUInteger currentItemPlaylistIndex = self.currentItem.playlistIndex;
-        
-        [(AVQueuePlayer *)self.videoPlayer removeAllItems];
-        
-        AVPlayerItem *tempItem = nil;
-        for (NSUInteger index = currentItemPlaylistIndex - 1; index < self.playlist.count; index++)
-        {
-            tempItem = [AVPlayerItem playerItemWithAsset:self.playlist[index].asset];
-            [(AVQueuePlayer *)self.videoPlayer insertItem:tempItem afterItem:nil];
-        }
-        
-        [self.videoPlayer play];
+        [self playItemAtIndex:self.currentItem.playlistIndex - 1];
         
         return YES;
     }
@@ -676,7 +665,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 {
     if (self.playlist.count && (self.currentItem.playlistIndex < self.playlist.count - 1))
     {
-        [(AVQueuePlayer *)self.videoPlayer advanceToNextItem];
+        [self playItemAtIndex:self.currentItem.playlistIndex + 1];
         
         return YES;
     }
@@ -716,6 +705,23 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     }
     
     return -1;
+}
+
+- (BOOL)deleteItemAtIndex:(NSUInteger)index
+{
+    if (index >= self.playlistMutable.count)
+    {
+        return NO;
+    }
+    
+    [self stop];
+    
+    ASQueuePlayerItem *item = self.playlistMutable[index];
+    
+    [self.itemsDict removeObjectForKey:item.asset.URL.absoluteString];
+    [self.playlistMutable removeObjectAtIndex:index];
+    
+    return YES;
 }
 
 - (void)stop
@@ -775,6 +781,19 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 }
 
 #pragma mark - Helpers
+
+- (void)printMeta
+{
+    ASVP_LOG(@"Meta data items: %d", (int)self.videoPlayer.currentItem.timedMetadata.count);
+    ASVP_CLIENT_LOG(self, @"Meta data items: %d", (int)self.videoPlayer.currentItem.timedMetadata.count);
+    
+    NSUInteger index = 0;
+    for (AVMetadataItem *metaItem in self.videoPlayer.currentItem.timedMetadata)
+    {
+        ASVP_LOG(@"Meta item(%d):\nIdentifier: %@\nValue:%@\n", (int)index, metaItem.identifier, metaItem.value);
+        ASVP_CLIENT_LOG(self, @"Meta item(%d):\nIdentifier: %@\nValue:%@\n", (int)index, metaItem.identifier, metaItem.value);
+    }
+}
 
 + (NSString *)stateStringFromState:(ASVideoPlayerState)state
 {

@@ -195,9 +195,13 @@ NSString const *kASVP_PlayableKey                           = @"playable";
             break;
     }
     
-    NSLog(@"STATE: %@ -> %@",
-          [ASVideoPlayer stateStringFromState:_state],
-          [ASVideoPlayer stateStringFromState:state]);
+    ASVP_LOG(@"STATE: %@ -> %@",
+             [ASVideoPlayer stateStringFromState:_state],
+             [ASVideoPlayer stateStringFromState:state]);
+    
+    ASVP_CLIENT_LOG(self, @"STATE: %@ -> %@",
+                    [ASVideoPlayer stateStringFromState:_state],
+                    [ASVideoPlayer stateStringFromState:state]);
     
     _state = state;
 }

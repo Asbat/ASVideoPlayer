@@ -70,4 +70,13 @@
  */
 - (NSInteger)indexForItemURL:(NSString *)itemURL;
 
+/**
+ *  Delete item at index.
+ *
+ *  @param index Index
+ *
+ *  @return NO if the item was not deleted.
+ */
+- (BOOL)deleteItemAtIndex:(NSUInteger)index;
+
 @end

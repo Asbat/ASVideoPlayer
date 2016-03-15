@@ -23,17 +23,20 @@
 - (instancetype)initWithTitle:(NSString *)title
                           url:(NSString *)url
                      userInfo:(NSDictionary *)userInfo
-                playlistIndex:(NSUInteger)playlistIndex
 {
     if (self = [super init])
     {
         self.title              = title;
         self.asset              = [AVURLAsset assetWithURL:[NSURL URLWithString:url]];
         self.userInfo           = userInfo;
-        _playlistIndex          = playlistIndex;
     }
     
     return self;
+}
+
+- (void)updatePlaylistIndex:(NSUInteger)playlistIndex
+{
+    _playlistIndex = playlistIndex;
 }
 
 - (void)updateStatus:(ASQueuePlayerItemState)status error:(NSError *)error

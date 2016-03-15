@@ -37,13 +37,13 @@ typedef NS_ENUM(NSUInteger, ASQueuePlayerItemState)
 
 - (instancetype)initWithTitle:(NSString *)title
                           url:(NSString *)url
-                     userInfo:(NSDictionary *)userInfo
-                playlistIndex:(NSUInteger)playlistIndex;
+                     userInfo:(NSDictionary *)userInfo;
 
 - (void)prepareItem:(void (^)(NSError *error))completion;
 
 - (void)cancelPreparing;
 
+- (void)updatePlaylistIndex:(NSUInteger)playlistIndex;
 - (void)updateStatus:(ASQueuePlayerItemState)status error:(NSError *)error;
 
 + (NSError *)validateAsset:(AVURLAsset *)asset

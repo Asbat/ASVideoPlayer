@@ -48,13 +48,11 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     [self.videoView setFrame:self.vwPlayback.bounds];
     [self.vwPlayback addSubview:self.videoView];
     
-//    __weak typeof(self) weakSelf = self;
-//    self.videoView.player.logs = ^(NSString *log)
-//    {
-//        weakSelf.txtVwLogs.text = [weakSelf.txtVwLogs.text stringByAppendingString:[NSString stringWithFormat:@"\n%@", log]];
-//        
-//        [weakSelf.txtVwLogs scrollRangeToVisible:NSMakeRange(weakSelf.txtVwLogs.text.length - 1, 1)];
-//    };
+    __weak typeof(self) weakSelf = self;
+    self.videoView.player.logs = ^(NSString *log)
+    {
+        [weakSelf logHelper:log];
+    };
     
     [self addObserver:self
            forKeyPath:@"videoView.player.currentItem"
@@ -77,6 +75,44 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     [self.videoView setFrame:self.vwPlayback.bounds];
 }
 
+#pragma mark - Log helper
+
+- (void)logHelper:(NSString *)log
+{
+    self.txtVwLogs.text = [self.txtVwLogs.text stringByAppendingString:[NSString stringWithFormat:@"\n%@", log]];
+    
+    [self.txtVwLogs scrollRangeToVisible:NSMakeRange(self.txtVwLogs.text.length - 1, 1)];
+}
+
+#pragma mark - Add Item
+
+- (void)addItem:(NSString *)title itemUrl:(NSString *)itemUrl
+{
+    ASQueuePlayerItem *item = nil;
+    NSMutableArray *items = [NSMutableArray array];
+    NSMutableArray *paths = [NSMutableArray array];
+    
+    item = [[ASQueuePlayerItem alloc] initWithTitle:title
+                                                url:itemUrl
+                                           userInfo:@{}];
+    
+    [items addObject:item];
+    
+    [self.videoView.player appendItemsToPlaylist:items];
+    
+    [paths addObject:[NSIndexPath indexPathForRow:self.videoView.player.playlist.count - 1
+                                        inSection:0]];
+    
+    [self.tbVwPlaylist beginUpdates];
+    
+    [self.tbVwPlaylist insertRowsAtIndexPaths:paths
+                             withRowAnimation:UITableViewRowAnimationAutomatic];
+    
+    [self.tbVwPlaylist endUpdates];
+    
+    [self.videoView.player playItemAtIndex:0];
+}
+
 #pragma mark - IBActions
 
 - (IBAction)onClearPlaylistTapped:(id)sender
@@ -88,64 +124,12 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
 
 - (IBAction)onAddNewPlaylistItemTapped:(id)sender
 {
-    static NSUInteger step = 0;
+    [self showInputAlert];
     
-    ASQueuePlayerItem *item = nil;
-    NSMutableArray *items = [NSMutableArray array];
-    NSMutableArray *paths = [NSMutableArray array];
-//    if (step % 2 == 0)
-    {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"On Air"
-                                                    url:@"http://testcontent.qello.com.s3.amazonaws.com/encoding/live/1/2.m3u8"
-                                               userInfo:@{}
-                                          playlistIndex:0];
-        
-        [items addObject:item];
-        
-        [paths addObject:[NSIndexPath indexPathForRow:0
-                                           inSection:0]];
-    }
-////    else if (step % 3 == 0)
-//    {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Test Meta"
-                                                    url:@"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear1/prog_index.m3u8"
-                                               userInfo:@{}
-                                          playlistIndex:1];
-        
-        [items addObject:item];
-        
-        [paths addObject:[NSIndexPath indexPathForRow:1
-                                            inSection:0]];
-//    }
-////    else
-//    {
-        item = [[ASQueuePlayerItem alloc] initWithTitle:@"Colibri"
-                                                    url:@"https://devimages.apple.com.edgekey.net/samplecode/avfoundationMedia/AVFoundationQueuePlayer_HLS2/master.m3u8"
-                                               userInfo:@{}
-                                          playlistIndex:2];
-        
-        [items addObject:item];
-        
-        [paths addObject:[NSIndexPath indexPathForRow:2
-                                            inSection:0]];
-//    }
-    
-    [self.videoView.player appendItemsToPlaylist:items];
-
-     [self.tbVwPlaylist beginUpdates];
-     
-     [self.tbVwPlaylist insertRowsAtIndexPaths:paths
-                                  withRowAnimation:UITableViewRowAnimationAutomatic];
-     
-     [self.tbVwPlaylist endUpdates];
-     
-     [self.tbVwPlaylist scrollToRowAtIndexPath:paths.lastObject
-                                  atScrollPosition:UITableViewScrollPositionMiddle
-                                          animated:YES];
-    
-    step++;
-    
-    [self.videoView.player playItemAtIndex:0];
+//    http://testcontent.qello.com.s3.amazonaws.com/encoding/live/1/2.m3u8
+//    http://testcontent.qello.com.s3.amazonaws.com/encoding/live/1/1.m3u8
+//    http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/gear1/prog_index.m3u8
+//    https://devimages.apple.com.edgekey.net/samplecode/avfoundationMedia/AVFoundationQueuePlayer_HLS2/master.m3u8
 }
 
 - (IBAction)onPrevItemButtonTapped:(id)sender
@@ -156,6 +140,19 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
 - (IBAction)onNextItemButtonTapped:(id)sender
 {
     [self.videoView.player nextItem];
+}
+
+- (IBAction)onDeleteItemButtonTapped:(id)sender
+{
+    if ([self.videoView.player deleteItemAtIndex:self.videoView.player.currentItem.playlistIndex])
+    {
+        [self.tbVwPlaylist beginUpdates];
+        
+        [self.tbVwPlaylist deleteRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:self.videoView.player.currentItem.playlistIndex inSection:0]]
+                                 withRowAnimation:UITableViewRowAnimationAutomatic];
+        
+        [self.tbVwPlaylist endUpdates];
+    }
 }
 
 #pragma mark - UITableView
@@ -192,6 +189,11 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     {
         if (self.videoView.player.currentItem)
         {
+            [self logHelper:[NSString stringWithFormat:@"Current Item:\ntitle: %@\nurl: %@\nerror: %@\n",
+                             self.videoView.player.currentItem.title,
+                             self.videoView.player.currentItem.asset.URL.absoluteString,
+                             self.videoView.player.currentItem.error]];
+             
             if ([self.tbVwPlaylist numberOfRowsInSection:0] > self.videoView.player.currentItem.playlistIndex)
             {
                 [self.tbVwPlaylist selectRowAtIndexPath:[NSIndexPath indexPathForRow:self.videoView.player.currentItem.playlistIndex inSection:0]
@@ -207,6 +209,39 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
                                change:change
                               context:context];
     }
+}
+
+#pragma mark - UIAlertController
+
+- (void)showInputAlert
+{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Append New Item"
+                                                                   message:nil
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    __block UITextField *txtFldItemTitle = nil;
+    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField)
+    {
+        txtFldItemTitle = textField;
+        txtFldItemTitle.placeholder = @"Title";
+    }];
+    
+    __block UITextField *txtFldItemUrl = nil;
+    [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField)
+     {
+         txtFldItemUrl = textField;
+         txtFldItemUrl.placeholder = @"URL";
+     }];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    
+    __weak typeof(self) weakSelf = self;
+    [alert addAction:[UIAlertAction actionWithTitle:@"Add" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action)
+    {
+        [weakSelf addItem:txtFldItemTitle.text itemUrl:txtFldItemUrl.text];
+    }]];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 @end
