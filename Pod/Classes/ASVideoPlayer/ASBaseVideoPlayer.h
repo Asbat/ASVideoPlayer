@@ -28,7 +28,7 @@ FOUNDATION_EXTERN NSString const *kASVP_PlayableKey;
 
 #ifdef ASVP_DEBUG
     #define ASVP_LOG( s, ... ) NSLog( @"<%p %@:%@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], [[NSString stringWithUTF8String:__func__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] );
-    #define ASVP_CLIENT_LOG( player, s, ...) if (player.logs) player.logs([NSString stringWithFormat:(s), ##__VA_ARGS__])
+    #define ASVP_CLIENT_LOG( player, s, ...) if (player.logs) player.logs([NSString stringWithFormat:@"[%@]: %@", [NSDate date], [NSString stringWithFormat:(s), ##__VA_ARGS__]])
 #else
     #define ASVP_LOG( s, ... )
     #define ASVP_CLIENT_LOG( player, s, ...)
