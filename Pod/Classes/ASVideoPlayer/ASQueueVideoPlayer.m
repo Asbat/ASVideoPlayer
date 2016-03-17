@@ -254,6 +254,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     [((AVQueuePlayer *)self.videoPlayer) removeAllItems];
     [self.itemsDict removeAllObjects];
     [self.playlistMutable removeAllObjects];
+    self.currentItem = nil;
 }
 
 #pragma mark -
@@ -291,6 +292,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
         
         if ([statusAsNumber isKindOfClass:[NSNumber class]] == NO)
         {
+            self.currentItem = nil;
             [self setState:ASVideoPlayerState_Suspended];
             
             return;
