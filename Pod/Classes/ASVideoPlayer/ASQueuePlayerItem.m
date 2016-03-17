@@ -21,13 +21,13 @@
 @implementation ASQueuePlayerItem
 
 - (instancetype)initWithTitle:(NSString *)title
-                          url:(NSString *)url
+                          url:(NSURL *)url
                      userInfo:(NSDictionary *)userInfo
 {
     if (self = [super init])
     {
         self.title              = title;
-        self.asset              = [AVURLAsset assetWithURL:[NSURL URLWithString:url]];
+        self.asset              = [AVURLAsset assetWithURL:url];
         self.userInfo           = userInfo;
     }
     

@@ -36,7 +36,7 @@ typedef NS_ENUM(NSUInteger, ASQueuePlayerItemState)
 @property (nonatomic, assign, readonly) NSUInteger              playlistIndex;
 
 - (instancetype)initWithTitle:(NSString *)title
-                          url:(NSString *)url
+                          url:(NSURL *)url
                      userInfo:(NSDictionary *)userInfo;
 
 - (void)prepareItem:(void (^)(NSError *error))completion;

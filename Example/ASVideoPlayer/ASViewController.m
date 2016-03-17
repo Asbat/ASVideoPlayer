@@ -93,7 +93,7 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     NSMutableArray *paths = [NSMutableArray array];
     
     item = [[ASQueuePlayerItem alloc] initWithTitle:title
-                                                url:itemUrl
+                                                url:[NSURL URLWithString:itemUrl]
                                            userInfo:@{}];
     
     [items addObject:item];
