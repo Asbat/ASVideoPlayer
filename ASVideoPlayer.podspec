@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "ASVideoPlayer"
-  s.version          = "0.8.0"
+  s.version          = "0.9.0"
   s.summary          = "ASVideoPlayer simplifies the process of playing a video."
 
   s.description      = <<-DESC
