@@ -596,6 +596,8 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 {
     // Handle Picture-In-Picture
     [self handlePictureInPicture];
+    ((AVPlayerLayer *)self.vwPlayback.layer).videoGravity = AVLayerVideoGravityResizeAspect;
+    
     return (AVPlayerLayer *)self.vwPlayback.layer;
 }
 

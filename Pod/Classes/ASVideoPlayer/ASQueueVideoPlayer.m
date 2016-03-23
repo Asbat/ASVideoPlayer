@@ -102,7 +102,6 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
         AVPlayerLayer *playerLayer = [self.delegate outputViewForVideoPlayer:self];
         
         [playerLayer setPlayer:self.videoPlayer];
-        playerLayer.videoGravity = AVLayerVideoGravityResizeAspect;
     }
     
     [self setState:ASVideoPlayerState_Init];
@@ -416,8 +415,9 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
             for (AVMetadataItem *metaItem in self.videoPlayer.currentItem.timedMetadata)
             {
                 [metaItems addObject:@{
-                                      @"identifier" : metaItem.identifier?  : @"",
-                                      @"value"      : metaItem.value?       : @"",
+                                      @"identifier"     : metaItem.identifier?  : @"",
+                                      @"value"          : metaItem.value?       : @"",
+                                      @"description"    : metaItem.extraAttributes[@"info"]?  : @""
                                       }];
             }
             
@@ -792,8 +792,15 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     NSUInteger index = 0;
     for (AVMetadataItem *metaItem in self.videoPlayer.currentItem.timedMetadata)
     {
-        ASVP_LOG(@"Meta item(%d):\nIdentifier: %@\nValue:%@\n", (int)index, metaItem.identifier, metaItem.value);
-        ASVP_CLIENT_LOG(self, @"Meta item(%d):\nIdentifier: %@\nValue:%@\n", (int)index, metaItem.identifier, metaItem.value);
+        ASVP_LOG(@"Meta item(%d):\nIdentifier: %@\nValue:%@\nInfo:%@\n",
+                 (int)index,
+                 metaItem.identifier, metaItem.value, metaItem.extraAttributes[@"info"]);
+        
+        ASVP_CLIENT_LOG(self, @"Meta item(%d):\nIdentifier: %@\nValue:%@\nInfo:%@\n",
+                        (int)index,
+                        metaItem.identifier,
+                        metaItem.value,
+                        metaItem.extraAttributes[@"info"]);
     }
 }
 
