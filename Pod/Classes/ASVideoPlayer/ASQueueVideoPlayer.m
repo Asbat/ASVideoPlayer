@@ -33,6 +33,13 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 {
     if (self.videoPlayer != nil)
     {
+        if ([self.delegate respondsToSelector:@selector(outputViewForVideoPlayer:)])
+        {
+            AVPlayerLayer *playerLayer = [self.delegate outputViewForVideoPlayer:self];
+            
+            [playerLayer setPlayer:self.videoPlayer];
+        }
+        
         // Video player already created.
         return;
     }
@@ -466,16 +473,8 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 - (CMTime)playerItemDuration
 {
     AVPlayerItem *playerItem = [self.videoPlayer currentItem];
-    if (playerItem.status == AVPlayerItemStatusReadyToPlay)
-    {
-        return([playerItem duration]);
-    }
-    else if (playerItem.status == AVPlayerItemStatusUnknown && self.videoPlayer.externalPlaybackActive)
-    {
-        return([playerItem duration]);
-    }
     
-    return(kCMTimeInvalid);
+    return playerItem.asset.duration;
 }
 
 #pragma mark -
@@ -516,6 +515,11 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     CMTime playerDuration = [self playerItemDuration];
     if (CMTIME_IS_INVALID(playerDuration))
     {
+        if ([self.delegate respondsToSelector:@selector(videoPlayer:currentTime:timeLeft:duration:)])
+        {
+            [self.delegate videoPlayer:self currentTime:0 timeLeft:0 duration:0];
+        }
+        
         //TODO:
         //        self.vwVideo.scrubberMinValue = 0.0;
         return;
