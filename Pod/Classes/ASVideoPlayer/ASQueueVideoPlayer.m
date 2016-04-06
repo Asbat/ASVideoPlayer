@@ -547,6 +547,13 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
             [self sendEventPlaying];
         }
     }
+    else
+    {
+        if ([self.delegate respondsToSelector:@selector(videoPlayer:currentTime:timeLeft:duration:)])
+        {
+            [self.delegate videoPlayer:self currentTime:0 timeLeft:0 duration:0];
+        }
+    }
 }
 
 #pragma mark - Public Methods
