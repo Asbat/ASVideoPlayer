@@ -116,7 +116,8 @@
 
 - (void)cancelPreparing
 {
-    [self.asset cancelLoading];
+    // TODO: why is this taking so much time to cancel?
+//    [self.asset cancelLoading];
 }
 
 /*

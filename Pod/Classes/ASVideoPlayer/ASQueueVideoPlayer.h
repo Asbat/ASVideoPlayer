@@ -79,4 +79,11 @@
  */
 - (BOOL)deleteItemAtIndex:(NSUInteger)index;
 
+- (BOOL)canSeek;
+- (void)seekToRelativeTime:(double)relativeTime;
+- (double)currentRelativeTime;
+
+- (double)currentTime;
+- (double)videoDurationLoaded;
+
 @end

@@ -51,7 +51,10 @@ static void *ASVC_ContextCurrentPlayerItemObservation           = &ASVC_ContextC
     __weak typeof(self) weakSelf = self;
     self.videoView.player.logs = ^(NSString *log)
     {
-        [weakSelf logHelper:log];
+        dispatch_async(dispatch_get_main_queue(), ^
+        {
+            [weakSelf logHelper:log];
+        });
     };
     
     [self addObserver:self
