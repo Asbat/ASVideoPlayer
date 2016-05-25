@@ -14,6 +14,7 @@ void *ASVP_ContextRateObservation                           = &ASVP_ContextRateO
 void *ASVP_ContextStatusObservation                         = &ASVP_ContextStatusObservation;
 void *ASVP_ContextCurrentItemObservation                    = &ASVP_ContextCurrentItemObservation;
 void *ATVP_ContextBufferObservation                         = &ATVP_ContextBufferObservation;
+void *ATVP_ContextBufferLikelyToKeepUpObservation           = &ATVP_ContextBufferLikelyToKeepUpObservation;
 
 NSString const *kASVP_TracksKey                             = @"tracks";
 NSString const *kASVP_PlayableKey                           = @"playable";
@@ -63,11 +64,11 @@ NSString const *kASVP_PlayableKey                           = @"playable";
 
 - (void)sendEvent:(ASVideoEvent *)event
 {
-    if ([self.delegate respondsToSelector:@selector(videoPlayer:event:)])
+    if ([self.eventsDelegate respondsToSelector:@selector(videoPlayer:event:)])
     {
         event.position      = @(CMTimeGetSeconds([self.videoPlayer currentTime]));
         
-        [self.delegate videoPlayer:self event:event];
+        [self.eventsDelegate videoPlayer:self event:event];
     }
 }
 
@@ -203,7 +204,11 @@ NSString const *kASVP_PlayableKey                           = @"playable";
                     [ASVideoPlayer stateStringFromState:_state],
                     [ASVideoPlayer stateStringFromState:state]);
     
+    [self willChangeValueForKey:@"state"];
+    
     _state = state;
+    
+    [self didChangeValueForKey:@"state"];
 }
 
 #pragma mark - Prepare Player
@@ -585,7 +590,6 @@ NSString const *kASVP_PlayableKey                           = @"playable";
             [self.delegate videoPlayer:self currentTime:time timeLeft:duration - time duration:duration];
         }
         
-        
         // Sync playedTime by starting to track played time when video starts playing.
         if (time >= 1.0 && [self isPlaying])
         {
@@ -760,8 +764,7 @@ NSString const *kASVP_PlayableKey                           = @"playable";
 
 - (void)appWillResignActive:(NSNotification *)notification
 {
-    // Add handler for "going to background" notification.
-    [self sendEventEnd];
+    [self pause];
 }
 
 #pragma mark - Helpers

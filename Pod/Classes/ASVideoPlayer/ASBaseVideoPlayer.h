@@ -19,6 +19,7 @@ FOUNDATION_EXTERN void *ASVP_ContextRateObservation;
 FOUNDATION_EXTERN void *ASVP_ContextStatusObservation;
 FOUNDATION_EXTERN void *ASVP_ContextCurrentItemObservation;
 FOUNDATION_EXTERN void *ATVP_ContextBufferObservation;
+FOUNDATION_EXTERN void *ATVP_ContextBufferLikelyToKeepUpObservation;
 
 FOUNDATION_EXTERN NSString const *kASVP_TracksKey;
 FOUNDATION_EXTERN NSString const *kASVP_PlayableKey;
@@ -93,8 +94,6 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 
 @optional
 
-- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer event:(ASVideoEvent *)event;
-
 - (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentTime:(double)currentTime timeLeft:(double)timeLeft duration:(double)duration;
 
 - (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer currentItem:(id)currentItem;
@@ -103,9 +102,16 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 
 @end
 
+@protocol ASVideoPlayerEventsDelegate <NSObject>
+
+- (void)videoPlayer:(ASBaseVideoPlayer *)videoPlayer event:(ASVideoEvent *)event;
+
+@end
+
 @interface ASBaseVideoPlayer : NSObject
 
 @property (nonatomic, weak) id<ASVideoPlayerDelegate>           delegate;
+@property (nonatomic, weak) id<ASVideoPlayerEventsDelegate>     eventsDelegate;
 
 @property (nonatomic, strong, readonly) NSURL                   *sourceURL;
 @property (nonatomic, strong, readonly) AVPlayer                *videoPlayer;
