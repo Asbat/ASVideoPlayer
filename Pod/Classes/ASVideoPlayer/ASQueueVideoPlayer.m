@@ -402,7 +402,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
         
         if (self.isPlaying)
         {
-            NSLog(@"self.videoPlayer.currentItem.status = %d", self.videoPlayer.currentItem.status);
+            ASVP_LOG(@"self.videoPlayer.currentItem.status = %d", (int)self.videoPlayer.currentItem.status);
             if (SYSTEM_VERSION_LESS_THAN(@"9.0") == NO)
             {
                 if (self.videoPlayer.currentItem.status == AVPlayerItemStatusReadyToPlay)
