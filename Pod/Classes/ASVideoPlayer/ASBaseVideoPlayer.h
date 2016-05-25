@@ -179,9 +179,10 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
 - (void)seekToTime:(double)time;
 
 /**
- *  Should enable subtitles but does not work for now.
+ *  Enables/Disables CC.
  *
- *  @param enable flag
+ *  @param enable
+ *
  */
 - (void)enableSubtitles:(BOOL)enable;
 

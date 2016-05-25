@@ -30,6 +30,13 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 @property (nonatomic, assign) BOOL                                      stopPreparingAssets;
 @property (nonatomic, strong) ASQueuePlayerItem                         *currentPreparingItem;
 
+// Closed Captions
+//[
+@property (nonatomic, strong) AVMediaSelectionGroup                     *ccMediaGroup;
+@property (nonatomic, strong) NSMutableArray                            *ccMediaOptionsArray;
+@property (nonatomic, strong) AVMediaSelectionOption                    *ccMediaOption;
+//]
+
 @end
 
 @implementation ASQueueVideoPlayer
@@ -350,7 +357,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                     self.initialSeek = 0.0f;
                 }
                 
-                self.videoPlayer.closedCaptionDisplayEnabled = self.enableSubtitles;
+                [self __enableSubtitles:self.enableSubtitles];
                 
                 if (self.state == ASVideoPlayerState_Seeking)
                 {
@@ -760,11 +767,6 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     [self sendEventPause];
 }
 
-- (void)enableSubtitles:(BOOL)enable
-{
-    self.enableSubtitles = enable;
-}
-
 - (void)initialSeek:(double)seekTo
 {
     self.initialSeek = seekTo;
@@ -906,6 +908,133 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     {
         [thisApp endBackgroundTask:_bgExtendedTask];
         _bgExtendedTask = UIBackgroundTaskInvalid;
+    }
+}
+
+#pragma mark - Closed Captions
+
+- (void)enableSubtitles:(BOOL)enable
+{
+    self.enableSubtitles = enable;
+}
+
+- (void)__enableSubtitles:(BOOL)shouldEnable
+{
+    if (shouldEnable) {
+        // YES, attempt to enable CC button, but only if CC is available for selected video.
+        
+        self.ccMediaGroup = [self.playerItem.asset mediaSelectionGroupForMediaCharacteristic:AVMediaCharacteristicLegible];
+        if (self.ccMediaGroup)
+        {
+            NSArray *ccMediaGroupOptions = self.ccMediaGroup.options;
+            
+            if (ccMediaGroupOptions.count > 0)
+            {
+                //DLog(@"ccMediaGroupOptions.count > 0 = %@", ccMediaGroupOptions);
+                
+                if (self.ccMediaOptionsArray == nil)
+                {
+                    self.ccMediaOptionsArray = [NSMutableArray array];
+                }
+                
+                [self.ccMediaOptionsArray removeAllObjects];
+                
+                // Cycle through media options to find only valid CC options.
+                for (AVMediaSelectionOption *mediaOption in ccMediaGroupOptions)
+                {
+                    if (mediaOption.extendedLanguageTag)
+                    {
+                        // Valid CC option, so add it to the valid list array.
+                        
+                        //DLog(@"VALID mediaOption: extendedLanguageTag = %@, displayName = %@, mediaType = %@", mediaOption.extendedLanguageTag, mediaOption.displayName, mediaOption.mediaType);
+                        
+                        [self.ccMediaOptionsArray addObject:mediaOption];
+                    }
+                }
+                
+                if (self.ccMediaOptionsArray.count > 0)
+                {
+                    // Valid CC media options list has at least one option, so enable CC button.
+                    
+                    //DLog(@"ccMediaOptionsArray.count > 0, so ENABLE CC button.");
+                    
+                    if (UIAccessibilityIsClosedCaptioningEnabled())
+                    {
+                        // User has iOS System Settings CC turned ON, which overrides app-level CC settings.
+                        
+                        //                        DLog(@"UIAccessibilityIsClosedCaptioningEnabled = YES");
+                        
+                        //                        showingCC = YES;
+                        
+                        // Show app-level CC button as Selected AND Disabled to reflect System CC Settings.
+                        //                        [self.mCCButton setImage:[UIImage imageNamed:@"QKVideoIcon-CC-Sel.png"] forState:UIControlStateNormal];
+                        //                        self.mCCButton.enabled = NO;
+                        
+                    }
+                    else
+                    {
+                        // User has iOS System Settings CC turned OFF, so enable app-level CC.
+                        //                        self.mCCButton.enabled = YES;
+                    }
+                    
+                    // Set Closed Captioning property.
+                    self.videoPlayer.closedCaptionDisplayEnabled = YES;
+                    
+                    [self startClosedCaptions:0];
+                    
+                }
+                else
+                {
+                    // There are NO valid CC media options, so disable CC button.
+                    //                    self.mCCButton.enabled = NO;
+                    
+                    // Set Closed Captioning property.
+                    self.videoPlayer.closedCaptionDisplayEnabled = NO;
+                }
+                
+            }
+            else
+            {
+                // NO legible media group OPTIONS, so disable CC button.
+                //                self.mCCButton.enabled = NO;
+                
+                // Set Closed Captioning property.
+                self.videoPlayer.closedCaptionDisplayEnabled = NO;
+            }
+            
+        }
+        else
+        {
+            // NO legible media GROUP, so disable CC button.
+            //            self.mCCButton.enabled = NO;
+            
+            // Set Closed Captioning property.
+            self.videoPlayer.closedCaptionDisplayEnabled = NO;
+        }
+        
+    }
+    else
+    {
+        // NO, so disable CC button.
+        
+        //        self.mCCButton.enabled = NO;
+        
+        // Set Closed Captioning property.
+        self.videoPlayer.closedCaptionDisplayEnabled = NO;
+    }
+}
+
+- (void)startClosedCaptions:(NSInteger)mediaOptionIndex
+{
+    // Turns ON Closed Captioning & Subtitles for select CC media option.
+    
+    if (self.ccMediaOptionsArray.count > mediaOptionIndex)
+    {
+        self.ccMediaOption = self.ccMediaOptionsArray[mediaOptionIndex];
+        
+        //DLog(@"START ccMediaOption.extendedLanguageTag = %@, displayName = %@, mediaType = %@", ccMediaOption.extendedLanguageTag, ccMediaOption.displayName, ccMediaOption.mediaType);
+        
+        [self.playerItem selectMediaOption:self.ccMediaOption inMediaSelectionGroup:self.ccMediaGroup];
     }
 }
 
