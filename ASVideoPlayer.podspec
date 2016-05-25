@@ -19,7 +19,7 @@ Playing a video appears to be not so simple. ASVideoPlayer is built on AVPlayer 
   # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "Alexey Stoyanov" => "astoyanov.dev@gmail.com" }
-  s.source           = { :git => "https://github.com/Asbat/ASVideoPlayer.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/Asbat/ASVideoPlayer.git", :tag => "1.0.2" }
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.platform     = :ios, '7.0'
