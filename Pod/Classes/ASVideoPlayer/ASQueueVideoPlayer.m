@@ -402,6 +402,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
         
         if (self.isPlaying)
         {
+            a
 //            ASVP_LOG(@"self.videoPlayer.currentItem.status = %ld", (long)self.videoPlayer.currentItem.status);
             if (SYSTEM_VERSION_LESS_THAN(@"9.0") == NO)
             {
