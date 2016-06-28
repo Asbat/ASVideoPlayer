@@ -82,6 +82,8 @@
 - (BOOL)canSeek;
 - (void)seekToRelativeTime:(double)relativeTime;
 - (double)currentRelativeTime;
+- (void)seekToRelativeTime:(double)relativeTime
+                completion:(void (^)(BOOL finished))completion;
 
 - (double)currentTime;
 - (double)videoDurationLoaded;

@@ -720,6 +720,19 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     [self.videoPlayer seekToTime:CMTimeMakeWithSeconds(relativeTime, NSEC_PER_SEC)];
 }
 
+- (void)seekToRelativeTime:(double)relativeTime
+                completion:(void (^)(BOOL finished))completion
+{
+    self.isSeeking =        YES;
+    
+    double duration         = CMTimeGetSeconds([self.videoPlayer currentItem].duration);
+    relativeTime            = relativeTime * duration;
+    [self.videoPlayer seekToTime:CMTimeMakeWithSeconds(relativeTime, NSEC_PER_SEC)
+                 toleranceBefore:kCMTimeZero
+                  toleranceAfter:kCMTimeZero
+               completionHandler:completion];
+}
+
 - (double)currentRelativeTime
 {
     double duration         = CMTimeGetSeconds([self.videoPlayer currentItem].duration);
