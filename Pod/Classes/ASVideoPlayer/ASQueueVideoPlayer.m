@@ -41,7 +41,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 
 @implementation ASQueueVideoPlayer
 
-- (void)setup
+- (void)setup:(double)interval
 {
     if (self.videoPlayer != nil)
     {
@@ -63,7 +63,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     
     [self addAirPlayFunctionality];
 
-    [self initScrubberTimer];
+    [self initScrubberTimer:interval];
     
     // Observe the player item end to determine when it has finished playing.
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -135,6 +135,11 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     }
     
     [self setState:ASVideoPlayerState_Init];
+}
+
+- (void)setup
+{
+    [self setup:1.0];
 }
 
 #pragma mark - Reset video player
@@ -570,10 +575,8 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 }
 
 /* Requests invocation of a given block during media playback to update the movie scrubber control. */
--(void)initScrubberTimer
+-(void)initScrubberTimer:(double)interval
 {
-    double interval = 1.0f;
-    
     /* Update the scrubber during normal playback. */
     __weak ASBaseVideoPlayer *weakSelf = self;
     self.timeObserver = [self.videoPlayer addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(interval, NSEC_PER_SEC)

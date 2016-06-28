@@ -12,6 +12,7 @@
 
 @property (nonatomic, strong, readonly) ASQueuePlayerItem                   *currentItem;
 
+- (void)setup:(double)interval;
 - (void)setup;
 
 /**
