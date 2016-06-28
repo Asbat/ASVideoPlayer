@@ -349,6 +349,18 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
             {
                 if (self.initialSeek != 0.0)
                 {
+                    CMTime playerDuration = [self playerItemDuration];
+                    if (CMTIME_IS_INVALID(playerDuration))
+                    {
+                        break;
+                    }
+                    
+                    double duration = CMTimeGetSeconds(playerDuration);
+                    if (duration - self.initialSeek < 10.0)
+                    {
+                        self.initialSeek -= 10.0;
+                    }
+                    
                     [self.videoPlayer seekToTime:CMTimeMakeWithSeconds(self.initialSeek, NSEC_PER_SEC)
                                completionHandler:^(BOOL finished)
                      {
@@ -674,7 +686,11 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     double duration = CMTimeGetSeconds(playerDuration);
     if (isfinite(duration))
     {
-        [self.videoPlayer seekToTime:CMTimeMakeWithSeconds(time, NSEC_PER_SEC)];
+        [self.videoPlayer seekToTime:CMTimeMakeWithSeconds(time, NSEC_PER_SEC)
+                   completionHandler:^(BOOL finished)
+        {
+            
+        }];
     }
 }
 
@@ -858,6 +874,8 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 
 - (void)stop
 {
+    [self sendEventStopped];
+    
     self.stopPreparingAssets = YES;
     [self.currentPreparingItem cancelPreparing];
     
@@ -868,7 +886,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 
 - (void)appWillResignActive:(NSNotification *)notification
 {
-    [self sendEventEnd];
+    [self sendEventResignActive];
 }
 
 - (void)resetBackgroundTask:(NSNotification*)notification
@@ -923,7 +941,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     if (shouldEnable) {
         // YES, attempt to enable CC button, but only if CC is available for selected video.
         
-        self.ccMediaGroup = [self.playerItem.asset mediaSelectionGroupForMediaCharacteristic:AVMediaCharacteristicLegible];
+        self.ccMediaGroup = [self.videoPlayer.currentItem.asset mediaSelectionGroupForMediaCharacteristic:AVMediaCharacteristicLegible];
         if (self.ccMediaGroup)
         {
             NSArray *ccMediaGroupOptions = self.ccMediaGroup.options;
@@ -1034,7 +1052,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
         
         //DLog(@"START ccMediaOption.extendedLanguageTag = %@, displayName = %@, mediaType = %@", ccMediaOption.extendedLanguageTag, ccMediaOption.displayName, ccMediaOption.mediaType);
         
-        [self.playerItem selectMediaOption:self.ccMediaOption inMediaSelectionGroup:self.ccMediaGroup];
+        [self.videoPlayer.currentItem selectMediaOption:self.ccMediaOption inMediaSelectionGroup:self.ccMediaGroup];
     }
 }
 

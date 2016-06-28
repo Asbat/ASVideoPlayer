@@ -74,21 +74,32 @@ NSString const *kASVP_PlayableKey                           = @"playable";
 
 - (void)sendEventPause
 {
-    [self sendEvent:[ASVideoEventPause eventWithTimePlayed:@(self.playedTimeSeconds)
-                                                  position:nil]];
+    [self sendEvent:[[ASVideoEventPause alloc] initWithTimePlayed:@(self.playedTimeSeconds)
+                                                         position:nil]];
 }
 
 - (void)sendEventPlaying
 {
-    [self sendEvent:[ASVideoEventPlaying eventWithTimePlayed:@(self.playedTimeSeconds)
-                                                    position:nil]];
+    [self sendEvent:[[ASVideoEventPlaying alloc] initWithTimePlayed:@(self.playedTimeSeconds)
+                                                           position:nil]];
 }
 
+- (void)sendEventStopped
+{
+    [self sendEvent:[[ASVideoEventStopped alloc] initWithTimePlayed:@(self.playedTimeSeconds)
+                                                           position:nil]];
+}
 
 - (void)sendEventEnd
 {
-    [self sendEvent:[ASVideoEventEnd eventWithTimePlayed:@(self.playedTimeSeconds)
-                                                position:nil]];
+    [self sendEvent:[[ASVideoEventEnd alloc] initWithTimePlayed:@(self.playedTimeSeconds)
+                                                       position:nil]];
+}
+
+- (void)sendEventResignActive
+{
+    [self sendEvent:[[ASVideoEventResignActive alloc] initWithTimePlayed:@(self.playedTimeSeconds)
+                                                                position:nil]];
 }
 
 #pragma mark - Change Video Player State

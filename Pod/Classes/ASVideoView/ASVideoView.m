@@ -573,7 +573,7 @@ static void *ASVV_ContextVideoStateObservation                  = &ASVV_ContextV
 
 - (void)videoPlayer:(ASVideoPlayer *)videoPlayer event:(ASVideoEvent *)event
 {
-    switch ([event.class type])
+    switch (event.type)
     {
         case ASVideoEventType_Playing:
             

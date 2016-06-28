@@ -9,27 +9,6 @@
 
 @implementation ASVideoEvent
 
-+ (instancetype)eventWithTimePlayed:(NSNumber *)timePlayed
-                           position:(NSNumber *)position
-{
-    ASVideoEvent *event = [[ASVideoEvent alloc] initWithTimePlayed:timePlayed
-                                                          position:position];
-    
-    event.event         = [self typeString];
-    
-    return event;
-}
-
-+ (ASVideoEventType)type
-{
-    return ASVideoEventType_Unknown;
-}
-
-+ (NSString *)typeString
-{
-    return nil;
-}
-
 - (instancetype)initWithTimePlayed:(NSNumber *)timePlayed
                           position:(NSNumber *)position
 {
@@ -42,16 +21,26 @@
     return self;
 }
 
+- (ASVideoEventType)type
+{
+    return ASVideoEventType_Unknown;
+}
+
+- (NSString *)event
+{
+    return nil;
+}
+
 @end
 
 @implementation ASVideoEventPlaying
 
-+ (ASVideoEventType)type
+- (ASVideoEventType)type
 {
     return ASVideoEventType_Playing;
 }
 
-+ (NSString *)typeString
+- (NSString *)event
 {
     return @"playing";
 }
@@ -60,12 +49,12 @@
 
 @implementation ASVideoEventPause
 
-+ (ASVideoEventType)type
+- (ASVideoEventType)type
 {
     return ASVideoEventType_Pause;
 }
 
-+ (NSString *)typeString
+- (NSString *)event
 {
     return @"pause";
 }
@@ -74,14 +63,42 @@
 
 @implementation ASVideoEventEnd
 
-+ (ASVideoEventType)type
+- (ASVideoEventType)type
 {
     return ASVideoEventType_End;
 }
 
-+ (NSString *)typeString
+- (NSString *)event
 {
     return @"end";
+}
+
+@end
+
+@implementation ASVideoEventResignActive
+
+- (ASVideoEventType)type
+{
+    return ASVideoEventType_ResignActive;
+}
+
+- (NSString *)event
+{
+    return @"resign-active";
+}
+
+@end
+
+@implementation ASVideoEventStopped
+
+- (ASVideoEventType)type
+{
+    return ASVideoEventType_Stopped;
+}
+
+- (NSString *)event
+{
+    return @"stopped";
 }
 
 @end

@@ -37,7 +37,10 @@
 - (void)sendEvent:(ASVideoEvent *)event;
 - (void)sendEventPause;
 - (void)sendEventPlaying;
+- (void)sendEventStopped;
 - (void)sendEventEnd;
+
+- (void)sendEventResignActive;
 
 - (void)syncScrubber;
 
