@@ -128,7 +128,7 @@ NSString const *kASVP_PlayableKey                           = @"playable";
             break;
         }
             
-        case ASVideoPlayerState_Preparing:
+        case ASVideoPlayerState_AssetPreparing:
         {
             if (state == self.state)
             {
@@ -237,7 +237,7 @@ NSString const *kASVP_PlayableKey                           = @"playable";
         return;
     }
     
-    [self setState:ASVideoPlayerState_Preparing];
+    [self setState:ASVideoPlayerState_AssetPreparing];
     
     // Add handler for "going to background" notification.
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -800,7 +800,7 @@ NSString const *kASVP_PlayableKey                           = @"playable";
             break;
         }
             
-        case ASVideoPlayerState_Preparing:
+        case ASVideoPlayerState_AssetPreparing:
         {
             stateString = @"Preparing";
             

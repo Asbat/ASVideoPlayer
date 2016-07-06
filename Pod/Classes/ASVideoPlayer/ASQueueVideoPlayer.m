@@ -404,7 +404,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
                 [self.currentItem updateStatus:ASQueuePlayerItemStateFailed
                                          error:self.videoPlayer.currentItem.error];
 
-                [self assetFailedToPrepareForPlayback:self.videoPlayer.currentItem.error];
+                [self playerFailedWithError:self.videoPlayer.currentItem.error];
                 
                 ASVP_LOG(@"Current Item Status: Failed(%@)", self.videoPlayer.currentItem.error);
                 ASVP_CLIENT_LOG(self, @"Current Item Status: Failed(%@)", self.videoPlayer.currentItem.error);
@@ -525,7 +525,16 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
 {
     [self syncScrubber];
     
-    self.userInfo = @{@"error" : error, @"current_item" : self.currentPreparingItem? : @""};
+    self.userInfo = @{@"error" : error, @"current_item" : self.currentPreparingItem? : [NSNull null]};
+    
+    [self setState:ASVideoPlayerState_AssetPreparingFailed];
+}
+
+- (void)playerFailedWithError:(NSError *)error
+{
+    [self syncScrubber];
+    
+    self.userInfo = @{@"error" : error, @"current_item" : self.currentPreparingItem? : [NSNull null]};
     
     [self setState:ASVideoPlayerState_Failed];
 }
@@ -855,7 +864,7 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
     self.stopPreparingAssets = NO;
     [self prepareItems:itemIndex completion:nil];
     
-    [self setState:ASVideoPlayerState_Preparing];
+    [self setState:ASVideoPlayerState_AssetPreparing];
     
     return YES;
 }
@@ -1114,9 +1123,16 @@ static void *ASVP_ContextCurrentItemMetabservation                      = &ASVP_
             break;
         }
             
-        case ASVideoPlayerState_Preparing:
+        case ASVideoPlayerState_AssetPreparing:
         {
             stateString = @"Preparing";
+            
+            break;
+        }
+            
+        case ASVideoPlayerState_AssetPreparingFailed:
+        {
+            stateString = @"Failed";
             
             break;
         }

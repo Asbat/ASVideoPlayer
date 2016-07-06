@@ -48,9 +48,14 @@ typedef NS_ENUM(NSInteger, ASVideoPlayerState)
     ASVideoPlayerState_Init,
     
     /**
-     *  Preparing the video player
+     *  Preparing the current asset
      */
-    ASVideoPlayerState_Preparing,
+    ASVideoPlayerState_AssetPreparing,
+    
+    /**
+     *  Current asset preparing failed.
+     */
+    ASVideoPlayerState_AssetPreparingFailed,
     
     /**
      *  Ready to Play
