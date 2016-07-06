@@ -215,11 +215,7 @@ NSString const *kASVP_PlayableKey                           = @"playable";
                     [ASVideoPlayer stateStringFromState:_state],
                     [ASVideoPlayer stateStringFromState:state]);
     
-    [self willChangeValueForKey:@"state"];
-    
     _state = state;
-    
-    [self didChangeValueForKey:@"state"];
 }
 
 #pragma mark - Prepare Player
